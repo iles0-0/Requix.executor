@@ -1,120 +1,79 @@
---[[
-    Requix UI Framework v4.0 — Ultra Compact
-    Без консоли, без графика | 310×170 | R6 / FastRespawn / Settings
-    Строго чёрно-серый | Зелёный акцент только на Execute
---]]
-
 local Requix = {}
-
--- Сервисы
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CoreGui = game:GetService("CoreGui") or Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Цветовая схема
 local Colors = {
-    Background = Color3.fromRGB(14, 14, 17),
-    Panel = Color3.fromRGB(20, 20, 25),
-    PanelLight = Color3.fromRGB(28, 28, 34),
-    AccentGreen = Color3.fromRGB(80, 220, 120),
-    AccentGreenDim = Color3.fromRGB(50, 150, 80),
-    AccentGreenNeon = Color3.fromRGB(120, 255, 160),
-    Text = Color3.fromRGB(225, 225, 230),
-    SubText = Color3.fromRGB(145, 145, 155),
-    Border = Color3.fromRGB(45, 45, 52),
-    Stroke = Color3.fromRGB(55, 55, 65),
-    Hover = Color3.fromRGB(32, 32, 38),
-    Danger = Color3.fromRGB(220, 75, 80),
+    Panel = Color3.fromRGB(20,20,25),
+    PanelLight = Color3.fromRGB(28,28,34),
+    AccentGreen = Color3.fromRGB(80,220,120),
+    AccentGreenDim = Color3.fromRGB(50,150,80),
+    AccentGreenNeon = Color3.fromRGB(120,255,160),
+    Text = Color3.fromRGB(225,225,230),
+    SubText = Color3.fromRGB(145,145,155),
+    Stroke = Color3.fromRGB(55,55,65),
+    Hover = Color3.fromRGB(32,32,38),
+    Danger = Color3.fromRGB(220,75,80),
+    AccentBlue = Color3.fromRGB(60,140,255)
 }
+local BgTrans = 0.1
+local PnTrans = 0.12
 
--- Прозрачности
-local BackgroundTransparency = 0.1
-local PanelTransparency = 0.12
-
--- GUI Контейнер
+if CoreGui:FindFirstChild("Requix") then CoreGui.Requix:Destroy() end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Requix"
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
 ScreenGui.DisplayOrder = 999
-ScreenGui.ZIndex = 999
-
-if CoreGui:FindFirstChild("Requix") then
-    CoreGui.Requix:Destroy()
-end
 ScreenGui.Parent = CoreGui
 
--- Фон с Blur
-local BlurBackground = Instance.new("Frame")
-BlurBackground.Name = "BlurBg"
-BlurBackground.Size = UDim2.new(1, 0, 1, 0)
-BlurBackground.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-BlurBackground.BackgroundTransparency = 0.85
-BlurBackground.BorderSizePixel = 0
-BlurBackground.ZIndex = 98
-BlurBackground.Visible = false
-BlurBackground.Parent = ScreenGui
+local BlurBg = Instance.new("Frame")
+BlurBg.Size = UDim2.new(1,0,1,0)
+BlurBg.BackgroundColor3 = Color3.new(0,0,0)
+BlurBg.BackgroundTransparency = 0.85
+BlurBg.BorderSizePixel = 0
+BlurBg.ZIndex = 98
+BlurBg.Visible = false
+BlurBg.Parent = ScreenGui
+pcall(function() local b = Instance.new("BlurEffect") b.Size = 15 b.Parent = BlurBg end)
 
-pcall(function()
-    local b = Instance.new("BlurEffect")
-    b.Size = 15
-    b.ZIndex = 98
-    b.Parent = BlurBackground
-end)
-
--- Главный контейнер (УМЕНЬШЕН: 310×170)
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainContainer"
-MainFrame.Size = UDim2.new(0, 310, 0, 170)       -- Высота 170 вместо 360
-MainFrame.Position = UDim2.new(0.5, -155, 0.5, -85)
+MainFrame.Size = UDim2.new(0,310,0,200)
+MainFrame.Position = UDim2.new(0.5,-155,0.5,-100)
 MainFrame.BackgroundColor3 = Colors.Panel
-MainFrame.BackgroundTransparency = BackgroundTransparency
+MainFrame.BackgroundTransparency = BgTrans
 MainFrame.BorderSizePixel = 0
-MainFrame.ClipsDescendants = false
 MainFrame.ZIndex = 100
 MainFrame.Parent = ScreenGui
+Instance.new("UIStroke",MainFrame).Color = Colors.Stroke
+MainFrame.UIStroke.Thickness = 1.5
+MainFrame.UIStroke.Transparency = 0.3
+Instance.new("UICorner",MainFrame).CornerRadius = UDim.new(0,10)
 
--- UIStroke
-local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Colors.Stroke
-MainStroke.Thickness = 1.5
-MainStroke.Transparency = 0.3
-MainStroke.ZIndex = 101
-MainStroke.Parent = MainFrame
-
--- UICorner 10px
-local UICornerMain = Instance.new("UICorner")
-UICornerMain.CornerRadius = UDim.new(0, 10)
-UICornerMain.Parent = MainFrame
-
---[[ ========== ВЕРХНЯЯ ПАНЕЛЬ (центровка) ========== ]]
 local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1, 0, 0, 36)
-TopBar.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-TopBar.BackgroundTransparency = BackgroundTransparency
+TopBar.Size = UDim2.new(1,0,0,36)
+TopBar.BackgroundColor3 = Color3.fromRGB(12,12,15)
+TopBar.BackgroundTransparency = BgTrans
 TopBar.BorderSizePixel = 0
 TopBar.ZIndex = 110
 TopBar.Parent = MainFrame
-
-local UICornerTop = Instance.new("UICorner")
-UICornerTop.CornerRadius = UDim.new(0, 10)
-UICornerTop.Parent = TopBar
+Instance.new("UICorner",TopBar).CornerRadius = UDim.new(0,10)
 
 local TopBarCover = Instance.new("Frame")
-TopBarCover.Size = UDim2.new(1, 0, 0, 10)
-TopBarCover.Position = UDim2.new(0, 0, 1, -10)
-TopBarCover.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-TopBarCover.BackgroundTransparency = BackgroundTransparency
+TopBarCover.Size = UDim2.new(1,0,0,10)
+TopBarCover.Position = UDim2.new(0,0,1,-10)
+TopBarCover.BackgroundColor3 = Color3.fromRGB(12,12,15)
+TopBarCover.BackgroundTransparency = BgTrans
 TopBarCover.BorderSizePixel = 0
 TopBarCover.ZIndex = 110
 TopBarCover.Parent = TopBar
 
--- Логотип
 local Logo = Instance.new("TextLabel")
-Logo.Size = UDim2.new(0, 90, 0, 20)
-Logo.AnchorPoint = Vector2.new(0, 0.5)
-Logo.Position = UDim2.new(0, 10, 0.5, 0)
+Logo.Size = UDim2.new(0,90,0,20)
+Logo.AnchorPoint = Vector2.new(0,0.5)
+Logo.Position = UDim2.new(0,10,0.5,0)
 Logo.BackgroundTransparency = 1
 Logo.Font = Enum.Font.GothamBold
 Logo.Text = "REQUIX"
@@ -124,131 +83,151 @@ Logo.TextXAlignment = Enum.TextXAlignment.Left
 Logo.ZIndex = 111
 Logo.Parent = TopBar
 
--- Кнопка сворачивания
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
-MinimizeButton.AnchorPoint = Vector2.new(0.5, 0.5)
-MinimizeButton.Position = UDim2.new(1, -47, 0.5, 0)
-MinimizeButton.BackgroundTransparency = 1
-MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.Text = "—"
-MinimizeButton.TextSize = 18
-MinimizeButton.TextColor3 = Colors.SubText
-MinimizeButton.ZIndex = 115
-MinimizeButton.Parent = TopBar
+local MiniBtn = Instance.new("TextButton")
+MiniBtn.Size = UDim2.new(0,30,0,30)
+MiniBtn.AnchorPoint = Vector2.new(0.5,0.5)
+MiniBtn.Position = UDim2.new(1,-47,0.5,0)
+MiniBtn.BackgroundTransparency = 1
+MiniBtn.Font = Enum.Font.GothamBold
+MiniBtn.Text = "—"
+MiniBtn.TextSize = 18
+MiniBtn.TextColor3 = Colors.SubText
+MiniBtn.ZIndex = 115
+MiniBtn.Parent = TopBar
 
--- Иконка свёрнутого состояния
-local MinimizedIcon = Instance.new("Frame")
-MinimizedIcon.Name = "MinimizedIcon"
-MinimizedIcon.Size = UDim2.new(0, 40, 0, 40)
-MinimizedIcon.Position = UDim2.new(0.5, -20, 0.5, -20)
-MinimizedIcon.BackgroundColor3 = Colors.Panel
-MinimizedIcon.BackgroundTransparency = BackgroundTransparency
-MinimizedIcon.BorderSizePixel = 0
-MinimizedIcon.Visible = false
-MinimizedIcon.ZIndex = 200
-MinimizedIcon.Parent = ScreenGui
+local MiniIcon = Instance.new("Frame")
+MiniIcon.Size = UDim2.new(0,40,0,40)
+MiniIcon.Position = UDim2.new(0.5,-20,0.5,-20)
+MiniIcon.BackgroundColor3 = Colors.Panel
+MiniIcon.BackgroundTransparency = BgTrans
+MiniIcon.Visible = false
+MiniIcon.ZIndex = 200
+MiniIcon.Parent = ScreenGui
+Instance.new("UICorner",MiniIcon).CornerRadius = UDim.new(0,10)
+Instance.new("UIStroke",MiniIcon).Color = Colors.Stroke
+MiniIcon.UIStroke.Thickness = 1.5
+MiniIcon.UIStroke.Transparency = 0.3
 
-local UICornerMin = Instance.new("UICorner")
-UICornerMin.CornerRadius = UDim.new(0, 10)
-UICornerMin.Parent = MinimizedIcon
+local MiniLogo = Instance.new("TextLabel")
+MiniLogo.Size = UDim2.new(1,0,1,0)
+MiniLogo.BackgroundTransparency = 1
+MiniLogo.Font = Enum.Font.GothamBold
+MiniLogo.Text = "R"
+MiniLogo.TextSize = 20
+MiniLogo.TextColor3 = Colors.AccentGreen
+MiniLogo.ZIndex = 202
+MiniLogo.Parent = MiniIcon
 
-local MinStroke = Instance.new("UIStroke")
-MinStroke.Color = Colors.Stroke
-MinStroke.Thickness = 1.5
-MinStroke.Transparency = 0.3
-MinStroke.ZIndex = 201
-MinStroke.Parent = MinimizedIcon
+local function Minimize() MainFrame.Visible = false MiniIcon.Visible = true BlurBg.Visible = false end
+local function Maximize() MainFrame.Visible = true MiniIcon.Visible = false BlurBg.Visible = true end
+MiniBtn.Activated:Connect(Minimize)
+MiniIcon.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Maximize() end end)
 
-local MinLogo = Instance.new("TextLabel")
-MinLogo.Size = UDim2.new(1, 0, 1, 0)
-MinLogo.BackgroundTransparency = 1
-MinLogo.Font = Enum.Font.GothamBold
-MinLogo.Text = "R"
-MinLogo.TextSize = 20
-MinLogo.TextColor3 = Colors.AccentGreen
-MinLogo.ZIndex = 202
-MinLogo.Parent = MinimizedIcon
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0,30,0,30)
+CloseBtn.AnchorPoint = Vector2.new(0.5,0.5)
+CloseBtn.Position = UDim2.new(1,-15,0.5,0)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Text = "✕"
+CloseBtn.TextSize = 16
+CloseBtn.TextColor3 = Colors.SubText
+CloseBtn.ZIndex = 115
+CloseBtn.Parent = TopBar
+CloseBtn.Activated:Connect(function() ScreenGui:Destroy() end)
 
-local function Minimize()
-    MainFrame.Visible = false
-    MinimizedIcon.Visible = true
-    BlurBackground.Visible = false
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1,-16,1,-44)
+Content.Position = UDim2.new(0,8,0,44)
+Content.BackgroundTransparency = 1
+Content.ZIndex = 102
+Content.Parent = MainFrame
+
+local TabFrame = Instance.new("Frame")
+TabFrame.Size = UDim2.new(1,0,0,24)
+TabFrame.Position = UDim2.new(0,0,0,0)
+TabFrame.BackgroundTransparency = 1
+TabFrame.ZIndex = 103
+TabFrame.Parent = Content
+local TabLayout = Instance.new("UIListLayout")
+TabLayout.FillDirection = Enum.FillDirection.Horizontal
+TabLayout.Padding = UDim.new(0,4)
+TabLayout.Parent = TabFrame
+
+local TabContent = Instance.new("Frame")
+TabContent.Size = UDim2.new(1,0,1,-30)
+TabContent.Position = UDim2.new(0,0,0,30)
+TabContent.BackgroundTransparency = 1
+TabContent.ZIndex = 102
+TabContent.Parent = Content
+
+local tabs = {}
+local currentTab = nil
+
+function Requix:CreateTab(name, icon)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0,90,0,22)
+    btn.BackgroundColor3 = Colors.PanelLight
+    btn.BackgroundTransparency = PnTrans
+    btn.BorderSizePixel = 0
+    btn.Font = Enum.Font.Gotham
+    btn.Text = (icon or "") .. " " .. name
+    btn.TextSize = 10
+    btn.TextColor3 = Colors.SubText
+    btn.ZIndex = 104
+    btn.Parent = TabFrame
+    Instance.new("UICorner",btn).CornerRadius = UDim.new(0,5)
+
+    local page = Instance.new("Frame")
+    page.Size = UDim2.new(1,0,1,0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.ZIndex = 102
+    page.Parent = TabContent
+
+    local tabData = { button = btn, page = page }
+    table.insert(tabs, tabData)
+
+    btn.Activated:Connect(function() Requix:SelectTab(tabData) end)
+    if #tabs == 1 then Requix:SelectTab(tabData) end
+    return page
 end
 
-local function Maximize()
-    MainFrame.Visible = true
-    MinimizedIcon.Visible = false
-    BlurBackground.Visible = true
-end
-
-MinimizeButton.MouseButton1Click:Connect(Minimize)
-MinimizedIcon.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
-       input.UserInputType == Enum.UserInputType.Touch then
-        Maximize()
+function Requix:SelectTab(tabData)
+    for _, t in ipairs(tabs) do
+        local active = (t == tabData)
+        t.page.Visible = active
+        if active then
+            TweenService:Create(t.button, TweenInfo.new(0.2), { BackgroundColor3 = Colors.AccentGreenDim, TextColor3 = Colors.Text }):Play()
+            currentTab = t
+        else
+            TweenService:Create(t.button, TweenInfo.new(0.2), { BackgroundColor3 = Colors.PanelLight, TextColor3 = Colors.SubText }):Play()
+        end
     end
-end)
+end
 
--- Кнопка закрытия
-local CloseButton = Instance.new("TextButton")
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.AnchorPoint = Vector2.new(0.5, 0.5)
-CloseButton.Position = UDim2.new(1, -15, 0.5, 0)
-CloseButton.BackgroundTransparency = 1
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Text = "✕"
-CloseButton.TextSize = 16
-CloseButton.TextColor3 = Colors.SubText
-CloseButton.ZIndex = 115
-CloseButton.Parent = TopBar
+local clientPage = Requix:CreateTab("Client", "💻")
 
-CloseButton.MouseEnter:Connect(function()
-    TweenService:Create(CloseButton, TweenInfo.new(0.15), {TextColor3 = Colors.Danger}):Play()
-end)
-CloseButton.MouseLeave:Connect(function()
-    TweenService:Create(CloseButton, TweenInfo.new(0.15), {TextColor3 = Colors.SubText}):Play()
-end)
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
---[[ ========== ОСНОВНАЯ ОБЛАСТЬ ========== ]]
-local ContentArea = Instance.new("Frame")
-ContentArea.Size = UDim2.new(1, -16, 1, -44)     -- Вся высота минус TopBar
-ContentArea.Position = UDim2.new(0, 8, 0, 44)
-ContentArea.BackgroundTransparency = 1
-ContentArea.ZIndex = 102
-ContentArea.Parent = MainFrame
-
---[[ ========== ТЕКСТОВОЕ ПОЛЕ ВВОДА ID ========== ]]
 local InputFrame = Instance.new("Frame")
-InputFrame.Size = UDim2.new(1, 0, 0, 34)
-InputFrame.Position = UDim2.new(0, 0, 0, 0)
+InputFrame.Size = UDim2.new(1,0,0,34)
+InputFrame.Position = UDim2.new(0,0,0,4)
 InputFrame.BackgroundColor3 = Colors.PanelLight
-InputFrame.BackgroundTransparency = PanelTransparency
+InputFrame.BackgroundTransparency = PnTrans
 InputFrame.BorderSizePixel = 0
 InputFrame.ZIndex = 105
-InputFrame.Parent = ContentArea
-
-local UICornerInput = Instance.new("UICorner")
-UICornerInput.CornerRadius = UDim.new(0, 8)
-UICornerInput.Parent = InputFrame
-
-local InputStroke = Instance.new("UIStroke")
-InputStroke.Color = Colors.Stroke
-InputStroke.Thickness = 1
-InputStroke.Transparency = 0.4
-InputStroke.ZIndex = 106
-InputStroke.Parent = InputFrame
+InputFrame.Parent = clientPage
+Instance.new("UICorner",InputFrame).CornerRadius = UDim.new(0,8)
+Instance.new("UIStroke",InputFrame).Color = Colors.Stroke
+InputFrame.UIStroke.Thickness = 1
+InputFrame.UIStroke.Transparency = 0.4
 
 local TextBox = Instance.new("TextBox")
-TextBox.Size = UDim2.new(1, -58, 1, 0)
-TextBox.Position = UDim2.new(0, 0, 0, 0)
+TextBox.Size = UDim2.new(1,-58,1,0)
+TextBox.Position = UDim2.new(0,0,0,0)
 TextBox.BackgroundTransparency = 1
 TextBox.Font = Enum.Font.Gotham
 TextBox.PlaceholderText = "Enter Script ID..."
-TextBox.PlaceholderColor3 = Color3.fromRGB(90, 90, 100)
+TextBox.PlaceholderColor3 = Color3.fromRGB(90,90,100)
 TextBox.Text = ""
 TextBox.TextSize = 12
 TextBox.TextColor3 = Colors.Text
@@ -256,439 +235,346 @@ TextBox.TextXAlignment = Enum.TextXAlignment.Left
 TextBox.ClearTextOnFocus = false
 TextBox.ZIndex = 107
 TextBox.Parent = InputFrame
+Instance.new("UIPadding",TextBox).PaddingLeft = UDim.new(0,10)
 
--- UIPadding
-local TextBoxPadding = Instance.new("UIPadding")
-TextBoxPadding.PaddingLeft = UDim.new(0, 10)
-TextBoxPadding.PaddingRight = UDim.new(0, 8)
-TextBoxPadding.ZIndex = 107
-TextBoxPadding.Parent = TextBox
+local ExecBtn = Instance.new("TextButton")
+ExecBtn.Size = UDim2.new(0,42,0,28)
+ExecBtn.AnchorPoint = Vector2.new(1,0.5)
+ExecBtn.Position = UDim2.new(1,-4,0.5,0)
+ExecBtn.BackgroundColor3 = Colors.AccentGreen
+ExecBtn.BorderSizePixel = 0
+ExecBtn.Font = Enum.Font.GothamBold
+ExecBtn.Text = "▶"
+ExecBtn.TextSize = 14
+ExecBtn.TextColor3 = Color3.fromRGB(20,20,25)
+ExecBtn.ZIndex = 110
+ExecBtn.Parent = InputFrame
+Instance.new("UICorner",ExecBtn).CornerRadius = UDim.new(0,6)
 
--- Кнопка Execute (с неоном)
-local ExecuteButton = Instance.new("TextButton")
-ExecuteButton.Size = UDim2.new(0, 42, 0, 28)
-ExecuteButton.AnchorPoint = Vector2.new(1, 0.5)
-ExecuteButton.Position = UDim2.new(1, -4, 0.5, 0)
-ExecuteButton.BackgroundColor3 = Colors.AccentGreen
-ExecuteButton.BorderSizePixel = 0
-ExecuteButton.Font = Enum.Font.GothamBold
-ExecuteButton.Text = "▶"
-ExecuteButton.TextSize = 14
-ExecuteButton.TextColor3 = Color3.fromRGB(20, 20, 25)
-ExecuteButton.ZIndex = 110
-ExecuteButton.Parent = InputFrame
+local ExecGlow = Instance.new("UIStroke")
+ExecGlow.Color = Colors.AccentGreenNeon
+ExecGlow.Thickness = 2
+ExecGlow.Transparency = 0.5
+ExecGlow.ZIndex = 111
+ExecGlow.Parent = ExecBtn
 
-local UICornerExec = Instance.new("UICorner")
-UICornerExec.CornerRadius = UDim.new(0, 6)
-UICornerExec.Parent = ExecuteButton
-
-local ExecuteGlow = Instance.new("UIStroke")
-ExecuteGlow.Color = Colors.AccentGreenNeon
-ExecuteGlow.Thickness = 2
-ExecuteGlow.Transparency = 0.5
-ExecuteGlow.ZIndex = 111
-ExecuteGlow.Parent = ExecuteButton
-
-ExecuteButton.MouseEnter:Connect(function()
-    TweenService:Create(ExecuteButton, TweenInfo.new(0.15), {
-        BackgroundColor3 = Colors.AccentGreenDim
-    }):Play()
-    TweenService:Create(ExecuteGlow, TweenInfo.new(0.15), {
-        Transparency = 0.2,
-        Thickness = 3
-    }):Play()
-end)
-ExecuteButton.MouseLeave:Connect(function()
-    TweenService:Create(ExecuteButton, TweenInfo.new(0.15), {
-        BackgroundColor3 = Colors.AccentGreen
-    }):Play()
-    TweenService:Create(ExecuteGlow, TweenInfo.new(0.15), {
-        Transparency = 0.5,
-        Thickness = 2
-    }):Play()
-end)
-
---[[ ========== ИСТОРИЯ СКРИПТОВ ========== ]]
 local ScriptHistory = {}
 local HistoryOpen = false
 
-local HistoryButton = Instance.new("TextButton")
-HistoryButton.Size = UDim2.new(0, 30, 0, 28)
-HistoryButton.Position = UDim2.new(0, 4, 0, 42)
-HistoryButton.BackgroundColor3 = Colors.PanelLight
-HistoryButton.BackgroundTransparency = PanelTransparency
-HistoryButton.BorderSizePixel = 0
-HistoryButton.Font = Enum.Font.GothamBold
-HistoryButton.Text = "⌄"
-HistoryButton.TextSize = 14
-HistoryButton.TextColor3 = Colors.SubText
-HistoryButton.ZIndex = 105
-HistoryButton.Parent = ContentArea
+local HistBtn = Instance.new("TextButton")
+HistBtn.Size = UDim2.new(0,30,0,28)
+HistBtn.Position = UDim2.new(0,4,0,46)
+HistBtn.BackgroundColor3 = Colors.PanelLight
+HistBtn.BackgroundTransparency = PnTrans
+HistBtn.BorderSizePixel = 0
+HistBtn.Font = Enum.Font.GothamBold
+HistBtn.Text = "⌄"
+HistBtn.TextSize = 14
+HistBtn.TextColor3 = Colors.SubText
+HistBtn.ZIndex = 105
+HistBtn.Parent = clientPage
+Instance.new("UICorner",HistBtn).CornerRadius = UDim.new(0,6)
 
-local UICornerHistBtn = Instance.new("UICorner")
-UICornerHistBtn.CornerRadius = UDim.new(0, 6)
-UICornerHistBtn.Parent = HistoryButton
+local HistDrop = Instance.new("Frame")
+HistDrop.Size = UDim2.new(0,200,0,0)
+HistDrop.Position = UDim2.new(0,4,0,78)
+HistDrop.BackgroundColor3 = Colors.PanelLight
+HistDrop.BackgroundTransparency = PnTrans
+HistDrop.BorderSizePixel = 0
+HistDrop.ClipsDescendants = true
+HistDrop.Visible = false
+HistDrop.ZIndex = 120
+HistDrop.Parent = clientPage
+Instance.new("UICorner",HistDrop).CornerRadius = UDim.new(0,8)
+Instance.new("UIStroke",HistDrop).Color = Colors.Stroke
+HistDrop.UIStroke.Thickness = 1
+HistDrop.UIStroke.Transparency = 0.4
 
-local HistoryDropdown = Instance.new("Frame")
-HistoryDropdown.Size = UDim2.new(0, 200, 0, 0)
-HistoryDropdown.Position = UDim2.new(0, 4, 0, 74)
-HistoryDropdown.BackgroundColor3 = Colors.PanelLight
-HistoryDropdown.BackgroundTransparency = PanelTransparency
-HistoryDropdown.BorderSizePixel = 0
-HistoryDropdown.ClipsDescendants = true
-HistoryDropdown.Visible = false
-HistoryDropdown.ZIndex = 120
-HistoryDropdown.Parent = ContentArea
+local HistList = Instance.new("ScrollingFrame")
+HistList.Size = UDim2.new(1,-4,1,-4)
+HistList.Position = UDim2.new(0,2,0,2)
+HistList.BackgroundTransparency = 1
+HistList.BorderSizePixel = 0
+HistList.ScrollBarThickness = 3
+HistList.ScrollBarImageColor3 = Colors.Stroke
+HistList.CanvasSize = UDim2.new(0,0,0,0)
+HistList.ZIndex = 122
+HistList.Parent = HistDrop
 
-local UICornerDrop = Instance.new("UICorner")
-UICornerDrop.CornerRadius = UDim.new(0, 8)
-UICornerDrop.Parent = HistoryDropdown
+local HistLayout = Instance.new("UIListLayout")
+HistLayout.SortOrder = Enum.SortOrder.LayoutOrder
+HistLayout.Padding = UDim.new(0,2)
+HistLayout.Parent = HistList
 
-local DropStroke = Instance.new("UIStroke")
-DropStroke.Color = Colors.Stroke
-DropStroke.Thickness = 1
-DropStroke.Transparency = 0.4
-DropStroke.ZIndex = 121
-DropStroke.Parent = HistoryDropdown
-
-local HistoryList = Instance.new("ScrollingFrame")
-HistoryList.Size = UDim2.new(1, -4, 1, -4)
-HistoryList.Position = UDim2.new(0, 2, 0, 2)
-HistoryList.BackgroundTransparency = 1
-HistoryList.BorderSizePixel = 0
-HistoryList.ScrollBarThickness = 3
-HistoryList.ScrollBarImageColor3 = Colors.Border
-HistoryList.CanvasSize = UDim2.new(0, 0, 0, 0)
-HistoryList.ZIndex = 122
-HistoryList.Parent = HistoryDropdown
-
-local HistoryLayout = Instance.new("UIListLayout")
-HistoryLayout.SortOrder = Enum.SortOrder.LayoutOrder
-HistoryLayout.Padding = UDim.new(0, 2)
-HistoryLayout.Parent = HistoryList
-
-local function RefreshHistoryUI()
-    for _, child in ipairs(HistoryList:GetChildren()) do
-        if child:IsA("TextButton") then child:Destroy() end
-    end
-    
-    for i, entry in ipairs(ScriptHistory) do
-        local EntryButton = Instance.new("TextButton")
-        EntryButton.Size = UDim2.new(1, 0, 0, 26)
-        EntryButton.BackgroundTransparency = 1
-        EntryButton.Font = Enum.Font.Gotham
-        EntryButton.Text = entry.Name or ("Script #" .. entry.ID)
-        EntryButton.TextSize = 11
-        EntryButton.TextColor3 = Colors.SubText
-        EntryButton.TextXAlignment = Enum.TextXAlignment.Left
-        EntryButton.ZIndex = 123
-
-        local EntryPadding = Instance.new("UIPadding")
-        EntryPadding.PaddingLeft = UDim.new(0, 8)
-        EntryPadding.Parent = EntryButton
-        
-        EntryButton.Parent = HistoryList
-        
-        EntryButton.MouseEnter:Connect(function()
-            TweenService:Create(EntryButton, TweenInfo.new(0.15), {
-                TextColor3 = Colors.AccentGreen
-            }):Play()
-        end)
-        EntryButton.MouseLeave:Connect(function()
-            TweenService:Create(EntryButton, TweenInfo.new(0.15), {
-                TextColor3 = Colors.SubText
-            }):Play()
-        end)
-        EntryButton.MouseButton1Click:Connect(function()
+local function RefreshHistory()
+    for _, c in ipairs(HistList:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+    for _, entry in ipairs(ScriptHistory) do
+        local eb = Instance.new("TextButton")
+        eb.Size = UDim2.new(1,0,0,26)
+        eb.BackgroundTransparency = 1
+        eb.Font = Enum.Font.Gotham
+        eb.Text = entry.Name or ("Script #" .. entry.ID)
+        eb.TextSize = 11
+        eb.TextColor3 = Colors.SubText
+        eb.TextXAlignment = Enum.TextXAlignment.Left
+        eb.ZIndex = 123
+        eb.Parent = HistList
+        Instance.new("UIPadding",eb).PaddingLeft = UDim.new(0,8)
+        eb.Activated:Connect(function()
             TextBox.Text = tostring(entry.ID)
-            HistoryDropdown.Visible = false
+            HistDrop.Visible = false
             HistoryOpen = false
         end)
     end
-    
-    HistoryList.CanvasSize = UDim2.new(0, 0, 0, #ScriptHistory * 28)
-    local count = math.min(#ScriptHistory, 6)
-    HistoryDropdown.Size = UDim2.new(0, 200, 0, count * 28 + 8)
+    HistList.CanvasSize = UDim2.new(0,0,0,#ScriptHistory * 28)
+    local cnt = math.min(#ScriptHistory, 6)
+    HistDrop.Size = UDim2.new(0,200,0,cnt * 28 + 8)
 end
 
-local function ToggleHistory()
+HistBtn.Activated:Connect(function()
     HistoryOpen = not HistoryOpen
-    HistoryDropdown.Visible = HistoryOpen
-    if HistoryOpen then
-        HistoryDropdown.ZIndex = 120
-        RefreshHistoryUI()
-    end
-end
+    HistDrop.Visible = HistoryOpen
+    if HistoryOpen then HistDrop.ZIndex = 120 RefreshHistory() end
+end)
 
-HistoryButton.MouseButton1Click:Connect(ToggleHistory)
-
---[[ ========== КНОПКИ ДЕЙСТВИЙ (R6 / Fast Respawn / Settings) ========== ]]
 local ActionBar = Instance.new("Frame")
-ActionBar.Size = UDim2.new(1, 0, 0, 30)
-ActionBar.Position = UDim2.new(0, 0, 1, -34)     -- Снизу с отступом
+ActionBar.Size = UDim2.new(1,0,0,30)
+ActionBar.Position = UDim2.new(0,0,1,-34)
 ActionBar.BackgroundTransparency = 1
 ActionBar.ZIndex = 105
-ActionBar.Parent = ContentArea
+ActionBar.Parent = clientPage
 
--- UIListLayout для автоматического выравнивания в ряд
-local ActionLayout = Instance.new("UIListLayout")
-ActionLayout.FillDirection = Enum.FillDirection.Horizontal
-ActionLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-ActionLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-ActionLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ActionLayout.Padding = UDim.new(0, 6)
-ActionLayout.ZIndex = 105
-ActionLayout.Parent = ActionBar
+local ActLayout = Instance.new("UIListLayout")
+ActLayout.FillDirection = Enum.FillDirection.Horizontal
+ActLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+ActLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+ActLayout.Padding = UDim.new(0,6)
+ActLayout.Parent = ActionBar
 
--- Функция создания кнопки действия
-local function CreateActionButton(Name, Icon, Color, Callback)
-    local Button = Instance.new("TextButton")
-    Button.Name = Name
-    Button.Size = UDim2.new(0, 90, 0, 28)        -- Компактные кнопки
-    Button.BackgroundColor3 = Colors.PanelLight
-    Button.BackgroundTransparency = PanelTransparency
-    Button.BorderSizePixel = 0
-    Button.Font = Enum.Font.Gotham
-    Button.Text = (Icon or "") .. " " .. Name
-    Button.TextSize = 11
-    Button.TextColor3 = Colors.SubText
-    Button.ZIndex = 106
-    Button.LayoutOrder = #ActionBar:GetChildren() + 1
-
-    local UICornerBtn = Instance.new("UICorner")
-    UICornerBtn.CornerRadius = UDim.new(0, 6)
-    UICornerBtn.Parent = Button
-
-    local BtnStroke = Instance.new("UIStroke")
-    BtnStroke.Color = Colors.Stroke
-    BtnStroke.Thickness = 1
-    BtnStroke.Transparency = 0.4
-    BtnStroke.ZIndex = 107
-    BtnStroke.Parent = Button
-
-    Button.MouseEnter:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.15), {
-            BackgroundColor3 = Colors.Hover,
-            TextColor3 = Colors.AccentGreen
-        }):Play()
-        TweenService:Create(BtnStroke, TweenInfo.new(0.15), {
-            Color = Colors.AccentGreen,
-            Transparency = 0.3
-        }):Play()
-    end)
-    Button.MouseLeave:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.15), {
-            BackgroundColor3 = Colors.PanelLight,
-            TextColor3 = Colors.SubText
-        }):Play()
-        TweenService:Create(BtnStroke, TweenInfo.new(0.15), {
-            Color = Colors.Stroke,
-            Transparency = 0.4
-        }):Play()
-    end)
-    Button.MouseButton1Click:Connect(function()
-        Callback()
-        -- Визуальная отдача
-        TweenService:Create(Button, TweenInfo.new(0.1), {
-            BackgroundColor3 = Colors.AccentGreenDim
-        }):Play()
+local function CreateActionButton(name, icon, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0,85,0,28)
+    btn.BackgroundColor3 = Colors.PanelLight
+    btn.BackgroundTransparency = PnTrans
+    btn.BorderSizePixel = 0
+    btn.Font = Enum.Font.Gotham
+    btn.Text = (icon or "") .. " " .. name
+    btn.TextSize = 11
+    btn.TextColor3 = Colors.SubText
+    btn.ZIndex = 106
+    btn.LayoutOrder = #ActionBar:GetChildren() + 1
+    btn.Parent = ActionBar
+    Instance.new("UICorner",btn).CornerRadius = UDim.new(0,6)
+    local stk = Instance.new("UIStroke")
+    stk.Color = Colors.Stroke
+    stk.Thickness = 1
+    stk.Transparency = 0.4
+    stk.Parent = btn
+    btn.Activated:Connect(function()
+        callback()
+        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Colors.AccentGreenDim}):Play()
         task.wait(0.1)
-        TweenService:Create(Button, TweenInfo.new(0.1), {
-            BackgroundColor3 = Colors.PanelLight
-        }):Play()
+        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Colors.PanelLight}):Play()
     end)
-
-    Button.Parent = ActionBar
-    return Button
+    return btn
 end
 
--- R6 (переключение на R6 анимации)
-CreateActionButton("R6", "🦴", Colors.AccentGreen, function()
-    local player = Players.LocalPlayer
-    if player and player.Character then
-        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            pcall(function()
-                humanoid.RigType = Enum.HumanoidRigType.R6
-            end)
-            Requix:Notify("REQUIX", "Switched to R6", 2)
-        end
+CreateActionButton("R6", "🦴", function()
+    local p = Players.LocalPlayer
+    if p and p.Character then
+        local h = p.Character:FindFirstChildOfClass("Humanoid")
+        if h then pcall(function() h.RigType = Enum.HumanoidRigType.R6 end) Requix:Notify("REQUIX", "Switched to R6", 2) end
     end
 end)
 
--- Fast Respawn (быстрое возрождение)
-CreateActionButton("Respawn", "🔄", Colors.AccentGreen, function()
-    local player = Players.LocalPlayer
-    if player and player.Character then
-        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.Health = 0 -- Быстрый респавн
-            Requix:Notify("REQUIX", "Respawning...", 1.5)
-        end
+CreateActionButton("Respawn", "🔄", function()
+    local p = Players.LocalPlayer
+    if p and p.Character then
+        local h = p.Character:FindFirstChildOfClass("Humanoid")
+        if h then h.Health = 0 Requix:Notify("REQUIX", "Respawning...", 1.5) end
     end
 end)
 
--- Settings (настройки — пока заглушка)
-CreateActionButton("Settings", "⚙", Colors.AccentGreen, function()
-    Requix:Notify("REQUIX", "Settings coming soon", 2)
-end)
+CreateActionButton("Settings", "⚙", function() Requix:Notify("REQUIX", "Settings coming soon", 2) end)
 
---[[ ========== ЛОГИКА EXECUTE ========== ]]
-local function ExecuteScript()
-    local input = TextBox.Text:gsub("%s+", "")
-    if input == "" then
-        Requix:Notify("REQUIX", "Enter an ID first", 2)
-        return
-    end
-    
+local serverPage = Requix:CreateTab("Server", "🌐")
+
+local SInputFrame = Instance.new("Frame")
+SInputFrame.Size = UDim2.new(1,0,0,34)
+SInputFrame.Position = UDim2.new(0,0,0,4)
+SInputFrame.BackgroundColor3 = Colors.PanelLight
+SInputFrame.BackgroundTransparency = PnTrans
+SInputFrame.BorderSizePixel = 0
+SInputFrame.ZIndex = 105
+SInputFrame.Parent = serverPage
+Instance.new("UICorner",SInputFrame).CornerRadius = UDim.new(0,8)
+Instance.new("UIStroke",SInputFrame).Color = Colors.AccentBlue
+SInputFrame.UIStroke.Thickness = 1
+SInputFrame.UIStroke.Transparency = 0.3
+
+local STextBox = Instance.new("TextBox")
+STextBox.Size = UDim2.new(1,-58,1,0)
+STextBox.Position = UDim2.new(0,0,0,0)
+STextBox.BackgroundTransparency = 1
+STextBox.Font = Enum.Font.Gotham
+STextBox.PlaceholderText = "Server Script ID..."
+STextBox.PlaceholderColor3 = Color3.fromRGB(90,90,100)
+STextBox.Text = ""
+STextBox.TextSize = 12
+STextBox.TextColor3 = Colors.Text
+STextBox.TextXAlignment = Enum.TextXAlignment.Left
+STextBox.ClearTextOnFocus = false
+STextBox.ZIndex = 107
+STextBox.Parent = SInputFrame
+Instance.new("UIPadding",STextBox).PaddingLeft = UDim.new(0,10)
+
+local SExecBtn = Instance.new("TextButton")
+SExecBtn.Size = UDim2.new(0,42,0,28)
+SExecBtn.AnchorPoint = Vector2.new(1,0.5)
+SExecBtn.Position = UDim2.new(1,-4,0.5,0)
+SExecBtn.BackgroundColor3 = Colors.AccentBlue
+SExecBtn.BorderSizePixel = 0
+SExecBtn.Font = Enum.Font.GothamBold
+SExecBtn.Text = "▶"
+SExecBtn.TextSize = 14
+SExecBtn.TextColor3 = Color3.fromRGB(255,255,255)
+SExecBtn.ZIndex = 110
+SExecBtn.Parent = SInputFrame
+Instance.new("UICorner",SExecBtn).CornerRadius = UDim.new(0,6)
+
+local ServerFunction = Instance.new("RemoteFunction")
+ServerFunction.Name = "RequixServerBridge"
+ServerFunction.Parent = ReplicatedStorage
+
+local function SendToServer(id)
+    local success, result = pcall(function() return ServerFunction:InvokeServer("execute", id) end)
+    if success then
+        if result == "OK" then Requix:Notify("REQUIX SS", "Script #" .. id .. " executed on server", 3)
+        elseif type(result) == "string" and result:match("^ERROR:") then Requix:Notify("REQUIX SS", result, 3)
+        else Requix:Notify("REQUIX SS", "Module #" .. id .. " loaded", 3) end
+    else Requix:Notify("REQUIX SS", "Failed: " .. tostring(result), 3) end
+end
+
+SExecBtn.Activated:Connect(function()
+    local input = STextBox.Text:gsub("%s+", "")
+    if input == "" then Requix:Notify("REQUIX SS", "Enter an ID first", 2) return end
     local scriptID = tonumber(input)
-    if not scriptID then
-        Requix:Notify("REQUIX", "Invalid ID format", 2)
-        return
-    end
-    
+    if not scriptID then Requix:Notify("REQUIX SS", "Invalid ID format", 2) return end
+    Requix:Notify("REQUIX SS", "Sending #" .. scriptID .. " to server...", 1.5)
+    SendToServer(scriptID)
+end)
+
+ExecBtn.Activated:Connect(function()
+    local input = TextBox.Text:gsub("%s+", "")
+    if input == "" then Requix:Notify("REQUIX", "Enter an ID first", 2) return end
+    local scriptID = tonumber(input)
+    if not scriptID then Requix:Notify("REQUIX", "Invalid ID format", 2) return end
     Requix:Notify("REQUIX", "Loading #" .. scriptID .. "...", 1.5)
-    
+
     local alreadyExists = false
-    for _, entry in ipairs(ScriptHistory) do
-        if entry.ID == scriptID then alreadyExists = true; break end
-    end
+    for _, entry in ipairs(ScriptHistory) do if entry.ID == scriptID then alreadyExists = true break end end
     if not alreadyExists then
-        table.insert(ScriptHistory, 1, {ID = scriptID, Name = "Script #" .. scriptID})
+        table.insert(ScriptHistory, 1, { ID = scriptID, Name = "Script #" .. scriptID })
         if #ScriptHistory > 20 then table.remove(ScriptHistory) end
     end
-    
-    local success, result = pcall(function()
-        return require(scriptID)
-    end)
-    
-    if success then
-        Requix:Notify("REQUIX", "Module #" .. scriptID .. " loaded", 3)
-    else
-        Requix:Notify("REQUIX", "Error: " .. tostring(result):sub(1, 40), 3)
-    end
-end
 
-ExecuteButton.MouseButton1Click:Connect(ExecuteScript)
-
-TextBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then ExecuteScript() end
+    local success, result = pcall(function() return require(scriptID) end)
+    if success then Requix:Notify("REQUIX", "Module #" .. scriptID .. " loaded", 3)
+    else Requix:Notify("REQUIX", "Error: " .. tostring(result):sub(1,40), 3) end
 end)
 
---[[ ========== ПЕРЕТАСКИВАНИЕ ========== ]]
+TextBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local input = TextBox.Text:gsub("%s+", "")
+        if input ~= "" and tonumber(input) then ExecBtn.Activated:Fire() end
+    end
+end)
+
 local Dragging = false
 local DragStart = nil
 local FrameStart = nil
 
 TopBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
-       input.UserInputType == Enum.UserInputType.Touch then
-        Dragging = true
-        DragStart = input.Position
-        FrameStart = MainFrame.Position
-        input.Processed = true
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Dragging = true; DragStart = input.Position; FrameStart = MainFrame.Position; input.Processed = true
     end
 end)
-
 UserInputService.InputChanged:Connect(function(input)
-    if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
-                     input.UserInputType == Enum.UserInputType.Touch) then
-        local Delta = input.Position - DragStart
-        MainFrame.Position = UDim2.new(
-            FrameStart.X.Scale, FrameStart.X.Offset + Delta.X,
-            FrameStart.Y.Scale, FrameStart.Y.Offset + Delta.Y
-        )
+    if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - DragStart
+        MainFrame.Position = UDim2.new(FrameStart.X.Scale, FrameStart.X.Offset + delta.X, FrameStart.Y.Scale, FrameStart.Y.Offset + delta.Y)
     end
 end)
-
 UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
-       input.UserInputType == Enum.UserInputType.Touch then
-        Dragging = true
-        DragStart = input.Position
-        FrameStart = MinimizedIcon.Position
-        input.Processed = true
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Dragging = false end
+end)
+
+MiniIcon.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Dragging = true; DragStart = input.Position; FrameStart = MiniIcon.Position; input.Processed = true
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if Dragging and MiniIcon.Visible and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - DragStart
+        MiniIcon.Position = UDim2.new(FrameStart.X.Scale, FrameStart.X.Offset + delta.X, FrameStart.Y.Scale, FrameStart.Y.Offset + delta.Y)
     end
 end)
 
---[[ ========== СКРЫТИЕ/ПОКАЗ ========== ]]
-function Requix:Toggle()
-    if MinimizedIcon.Visible then
-        Maximize()
-    else
-        if MainFrame.Visible then Minimize() else Maximize() end
-    end
-end
-
+function Requix:Toggle() if MiniIcon.Visible then Maximize() else if MainFrame.Visible then Minimize() else Maximize() end end end
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.RightShift then
-        Requix:Toggle()
-    end
+    if input.KeyCode == Enum.KeyCode.RightShift then Requix:Toggle() end
 end)
 
---[[ ========== УВЕДОМЛЕНИЯ ========== ]]
-function Requix:Notify(Title, Message, Duration)
-    Duration = Duration or 3
-    
-    local NotifFrame = Instance.new("Frame")
-    NotifFrame.Size = UDim2.new(0, 190, 0, 44)
-    NotifFrame.Position = UDim2.new(1, -200, 1, -54)
-    NotifFrame.BackgroundColor3 = Colors.Panel
-    NotifFrame.BackgroundTransparency = BackgroundTransparency
-    NotifFrame.BorderSizePixel = 0
-    NotifFrame.ZIndex = 500
-    NotifFrame.Parent = ScreenGui
-    
-    local UICornerNotif = Instance.new("UICorner")
-    UICornerNotif.CornerRadius = UDim.new(0, 8)
-    UICornerNotif.Parent = NotifFrame
-    
-    local NotifStroke = Instance.new("UIStroke")
-    NotifStroke.Color = Colors.Stroke
-    NotifStroke.Thickness = 1
-    NotifStroke.Transparency = 0.4
-    NotifStroke.ZIndex = 501
-    NotifStroke.Parent = NotifFrame
-    
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(1, -12, 0, 18)
-    TitleLabel.Position = UDim2.new(0, 8, 0, 4)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.Text = Title or "Requix"
-    TitleLabel.TextSize = 11
-    TitleLabel.TextColor3 = Colors.AccentGreen
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.ZIndex = 502
-    TitleLabel.Parent = NotifFrame
-    
-    local MsgLabel = Instance.new("TextLabel")
-    MsgLabel.Size = UDim2.new(1, -12, 0, 16)
-    MsgLabel.Position = UDim2.new(0, 8, 0, 22)
-    MsgLabel.BackgroundTransparency = 1
-    MsgLabel.Font = Enum.Font.Gotham
-    MsgLabel.Text = Message or ""
-    MsgLabel.TextSize = 10
-    MsgLabel.TextColor3 = Colors.SubText
-    MsgLabel.TextXAlignment = Enum.TextXAlignment.Left
-    MsgLabel.ZIndex = 502
-    MsgLabel.Parent = NotifFrame
-    
-    TweenService:Create(NotifFrame, TweenInfo.new(0.2), {BackgroundTransparency = BackgroundTransparency}):Play()
-    NotifFrame:TweenPosition(UDim2.new(1, -200, 1, -64), "Out", "Back", 0.3)
-    
-    task.wait(Duration)
-    
-    NotifFrame:TweenPosition(UDim2.new(1, -200, 1, -40), "In", "Quad", 0.25)
+function Requix:Notify(title, msg, dur)
+    dur = dur or 3
+    local nf = Instance.new("Frame")
+    nf.Size = UDim2.new(0,190,0,44)
+    nf.Position = UDim2.new(1,-200,1,-54)
+    nf.BackgroundColor3 = Colors.Panel
+    nf.BackgroundTransparency = BgTrans
+    nf.BorderSizePixel = 0
+    nf.ZIndex = 500
+    nf.Parent = ScreenGui
+    Instance.new("UICorner",nf).CornerRadius = UDim.new(0,8)
+    Instance.new("UIStroke",nf).Color = Colors.Stroke
+    nf.UIStroke.Thickness = 1
+    nf.UIStroke.Transparency = 0.4
+
+    local tl = Instance.new("TextLabel")
+    tl.Size = UDim2.new(1,-12,0,18)
+    tl.Position = UDim2.new(0,8,0,4)
+    tl.BackgroundTransparency = 1
+    tl.Font = Enum.Font.GothamBold
+    tl.Text = title or "Requix"
+    tl.TextSize = 11
+    tl.TextColor3 = Colors.AccentGreen
+    tl.TextXAlignment = Enum.TextXAlignment.Left
+    tl.ZIndex = 502
+    tl.Parent = nf
+
+    local ml = Instance.new("TextLabel")
+    ml.Size = UDim2.new(1,-12,0,16)
+    ml.Position = UDim2.new(0,8,0,22)
+    ml.BackgroundTransparency = 1
+    ml.Font = Enum.Font.Gotham
+    ml.Text = msg or ""
+    ml.TextSize = 10
+    ml.TextColor3 = Colors.SubText
+    ml.TextXAlignment = Enum.TextXAlignment.Left
+    ml.ZIndex = 502
+    ml.Parent = nf
+
+    TweenService:Create(nf, TweenInfo.new(0.2), {BackgroundTransparency = BgTrans}):Play()
+    nf:TweenPosition(UDim2.new(1,-200,1,-64), "Out", "Back", 0.3)
+    task.wait(dur)
+    nf:TweenPosition(UDim2.new(1,-200,1,-40), "In", "Quad", 0.25)
     task.wait(0.25)
-    NotifFrame:Destroy()
+    nf:Destroy()
 end
 
--- Показываем Blur при старте
-BlurBackground.Visible = true
-
--- Стартовое уведомление
-Requix:Notify("REQUIX", "Ultra Compact ready", 2)
+BlurBg.Visible = true
+Requix:Notify("REQUIX", "Server Bridge Ready", 2)
 
 return Requix
