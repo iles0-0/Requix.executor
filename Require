@@ -13,11 +13,9 @@ local Colors = {
     AccentYellow = Color3.fromRGB(255,185,0),
     AccentYellowBright = Color3.fromRGB(255,220,60),
     AccentYellowDim = Color3.fromRGB(180,120,0),
-    AccentGlow = Color3.fromRGB(255,200,30),
     Text = Color3.fromRGB(230,228,224),
     SubText = Color3.fromRGB(120,118,130),
     Stroke = Color3.fromRGB(50,48,60),
-    StrokeActive = Color3.fromRGB(255,185,0),
     Dark = Color3.fromRGB(7,7,10),
     Black = Color3.fromRGB(0,0,0),
     White = Color3.fromRGB(255,255,255),
@@ -28,7 +26,6 @@ local Colors = {
     Info = Color3.fromRGB(100,170,255),
     Warn = Color3.fromRGB(255,165,50),
     Error = Color3.fromRGB(255,55,55),
-    TopBarLine = Color3.fromRGB(255,185,0),
     Separator = Color3.fromRGB(35,34,44),
 }
 local BgTrans = 0.04
@@ -54,17 +51,18 @@ ScreenGui.Destroying:Connect(function()
     Connections = {}
 end)
 
--- Главный фрейм с тенью
+-- Shadow
 local Shadow = Instance.new("Frame")
-Shadow.Size = UDim2.new(0,420,0,296)
-Shadow.Position = UDim2.new(0.5,-210,0.5,-144)
+Shadow.Size = UDim2.new(0,416,0,296)
+Shadow.Position = UDim2.new(0.5,-208,0.5,-144)
 Shadow.BackgroundColor3 = Color3.fromRGB(0,0,0)
-Shadow.BackgroundTransparency = 0.55
+Shadow.BackgroundTransparency = 0.5
 Shadow.BorderSizePixel = 0
 Shadow.ZIndex = 0
 Shadow.Parent = ScreenGui
 Instance.new("UICorner",Shadow).CornerRadius = UDim.new(0,14)
 
+-- MainFrame
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0,400,0,280)
 MainFrame.Position = UDim2.new(0.5,-200,0.5,-140)
@@ -73,21 +71,18 @@ MainFrame.BackgroundTransparency = BgTrans
 MainFrame.BorderSizePixel = 0
 MainFrame.ZIndex = 1
 MainFrame.Parent = ScreenGui
-local MainCorner = Instance.new("UICorner",MainFrame)
-MainCorner.CornerRadius = UDim.new(0,12)
+Instance.new("UICorner",MainFrame).CornerRadius = UDim.new(0,12)
 local MainStroke = Instance.new("UIStroke",MainFrame)
 MainStroke.Color = Colors.Stroke
 MainStroke.Thickness = 1.2
 MainStroke.Transparency = 0.1
-
--- Внутренний градиент фона
-local BgGradient = Instance.new("UIGradient")
-BgGradient.Color = ColorSequence.new{
+local BgGrad = Instance.new("UIGradient")
+BgGrad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(16,15,22)),
     ColorSequenceKeypoint.new(1, Color3.fromRGB(8,8,12))
 }
-BgGradient.Rotation = 135
-BgGradient.Parent = MainFrame
+BgGrad.Rotation = 135
+BgGrad.Parent = MainFrame
 
 -- TopBar
 local TopBar = Instance.new("Frame")
@@ -97,18 +92,15 @@ TopBar.BackgroundTransparency = 0.0
 TopBar.BorderSizePixel = 0
 TopBar.ZIndex = 2
 TopBar.Parent = MainFrame
-local TopCorner = Instance.new("UICorner",TopBar)
-TopCorner.CornerRadius = UDim.new(0,12)
-local TopBarCover = Instance.new("Frame")
-TopBarCover.Size = UDim2.new(1,0,0,12)
-TopBarCover.Position = UDim2.new(0,0,1,-12)
-TopBarCover.BackgroundColor3 = Colors.Dark
-TopBarCover.BackgroundTransparency = 0.0
-TopBarCover.BorderSizePixel = 0
-TopBarCover.ZIndex = 2
-TopBarCover.Parent = TopBar
-
--- Gradient на TopBar
+Instance.new("UICorner",TopBar).CornerRadius = UDim.new(0,12)
+local TopCover = Instance.new("Frame")
+TopCover.Size = UDim2.new(1,0,0,12)
+TopCover.Position = UDim2.new(0,0,1,-12)
+TopCover.BackgroundColor3 = Colors.Dark
+TopCover.BackgroundTransparency = 0.0
+TopCover.BorderSizePixel = 0
+TopCover.ZIndex = 2
+TopCover.Parent = TopBar
 local TopGrad = Instance.new("UIGradient")
 TopGrad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(18,17,24)),
@@ -117,32 +109,27 @@ TopGrad.Color = ColorSequence.new{
 TopGrad.Rotation = 90
 TopGrad.Parent = TopBar
 
--- Тонкая жёлтая линия внизу TopBar (акцент)
-local TopAccentLine = Instance.new("Frame")
-TopAccentLine.Size = UDim2.new(0,60,0,1)
-TopAccentLine.Position = UDim2.new(0,12,1,-1)
-TopAccentLine.BackgroundColor3 = Colors.AccentYellow
-TopAccentLine.BackgroundTransparency = 0.2
-TopAccentLine.BorderSizePixel = 0
-TopAccentLine.ZIndex = 3
-TopAccentLine.Parent = TopBar
+-- Accent line под топбаром
+local TopLine = Instance.new("Frame")
+TopLine.Size = UDim2.new(0,60,0,1)
+TopLine.Position = UDim2.new(0,12,1,-1)
+TopLine.BackgroundColor3 = Colors.AccentYellow
+TopLine.BackgroundTransparency = 0.2
+TopLine.BorderSizePixel = 0
+TopLine.ZIndex = 3
+TopLine.Parent = TopBar
 local TopLineGrad = Instance.new("UIGradient")
-TopLineGrad.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,200,0)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,200,0))
-}
 TopLineGrad.Transparency = NumberSequence.new{
     NumberSequenceKeypoint.new(0, 0),
     NumberSequenceKeypoint.new(1, 1)
 }
-TopLineGrad.Parent = TopAccentLine
+TopLineGrad.Parent = TopLine
 
--- Логотип
+-- Dot + Logo
 local LogoDot = Instance.new("Frame")
 LogoDot.Size = UDim2.new(0,5,0,5)
 LogoDot.Position = UDim2.new(0,9,0.5,-2)
 LogoDot.BackgroundColor3 = Colors.AccentYellow
-LogoDot.BackgroundTransparency = 0
 LogoDot.BorderSizePixel = 0
 LogoDot.ZIndex = 3
 LogoDot.Parent = TopBar
@@ -175,7 +162,6 @@ LogoRest.TextXAlignment = Enum.TextXAlignment.Left
 LogoRest.ZIndex = 3
 LogoRest.Parent = TopBar
 
--- Версия
 local VerLabel = Instance.new("TextLabel")
 VerLabel.Size = UDim2.new(0,40,0,14)
 VerLabel.AnchorPoint = Vector2.new(0,0.5)
@@ -189,7 +175,7 @@ VerLabel.TextXAlignment = Enum.TextXAlignment.Left
 VerLabel.ZIndex = 3
 VerLabel.Parent = TopBar
 
--- Кнопки управления
+-- Control buttons
 local MiniBtn = Instance.new("TextButton")
 MiniBtn.Size = UDim2.new(0,44,0,44)
 MiniBtn.AnchorPoint = Vector2.new(0.5,0.5)
@@ -250,15 +236,25 @@ MiniLogo.TextColor3 = Colors.AccentYellow
 MiniLogo.ZIndex = 4
 MiniLogo.Parent = MiniIcon
 
-local function Minimize() MainFrame.Visible = false Shadow.Visible = false MiniIcon.Visible = true end
-local function Maximize() MainFrame.Visible = true Shadow.Visible = true MiniIcon.Visible = false end
+local function Minimize()
+    MainFrame.Visible = false
+    Shadow.Visible = false
+    MiniIcon.Visible = true
+end
+local function Maximize()
+    MainFrame.Visible = true
+    Shadow.Visible = true
+    MiniIcon.Visible = false
+end
 SafeConnect(MiniBtn, "Activated", Minimize)
 SafeConnect(CloseBtn, "Activated", function() ScreenGui:Destroy() end)
 SafeConnect(MiniIcon, "InputBegan", function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Maximize() end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Maximize()
+    end
 end)
 
--- Контент
+-- Content
 local Content = Instance.new("Frame")
 Content.Size = UDim2.new(1,-16,1,-50)
 Content.Position = UDim2.new(0,8,0,46)
@@ -266,7 +262,7 @@ Content.BackgroundTransparency = 1
 Content.ZIndex = 1
 Content.Parent = MainFrame
 
--- Execution Zone
+-- Input Frame
 local InputFrame = Instance.new("Frame")
 InputFrame.Size = UDim2.new(1,0,0,42)
 InputFrame.Position = UDim2.new(0,0,0,4)
@@ -281,9 +277,8 @@ InputStroke.Color = Colors.Stroke
 InputStroke.Thickness = 1
 InputStroke.Transparency = 0.3
 
--- Иконка поиска внутри поля
 local SearchIcon = Instance.new("TextLabel")
-SearchIcon.Size = UDim2.new(0,24,1,0)
+SearchIcon.Size = UDim2.new(0,28,1,0)
 SearchIcon.Position = UDim2.new(0,0,0,0)
 SearchIcon.BackgroundTransparency = 1
 SearchIcon.Font = Enum.Font.GothamBold
@@ -307,25 +302,22 @@ TextBox.TextXAlignment = Enum.TextXAlignment.Left
 TextBox.ClearTextOnFocus = false
 TextBox.ZIndex = 3
 TextBox.Parent = InputFrame
-local TBPad = Instance.new("UIPadding",TextBox)
-TBPad.PaddingLeft = UDim.new(0,28)
+Instance.new("UIPadding",TextBox).PaddingLeft = UDim.new(0,28)
 
 SafeConnect(TextBox, "Focused", function()
-    TweenService:Create(InputStroke, TweenInfo.new(0.25), {Color = Colors.AccentYellow, Transparency = 0}):Play()
-    TweenService:Create(SearchIcon, TweenInfo.new(0.25), {TextColor3 = Colors.AccentYellow}):Play()
+    TweenService:Create(InputStroke,TweenInfo.new(0.25),{Color = Colors.AccentYellow, Transparency = 0}):Play()
+    TweenService:Create(SearchIcon,TweenInfo.new(0.25),{TextColor3 = Colors.AccentYellow}):Play()
 end)
 SafeConnect(TextBox, "FocusLost", function()
-    TweenService:Create(InputStroke, TweenInfo.new(0.3), {Color = Colors.Stroke, Transparency = 0.3}):Play()
-    TweenService:Create(SearchIcon, TweenInfo.new(0.3), {TextColor3 = Colors.SubText}):Play()
+    TweenService:Create(InputStroke,TweenInfo.new(0.3),{Color = Colors.Stroke, Transparency = 0.3}):Play()
+    TweenService:Create(SearchIcon,TweenInfo.new(0.3),{TextColor3 = Colors.SubText}):Play()
 end)
 
--- Разделитель перед кнопками
 local BtnSep = Instance.new("Frame")
 BtnSep.Size = UDim2.new(0,1,0,22)
 BtnSep.AnchorPoint = Vector2.new(1,0.5)
 BtnSep.Position = UDim2.new(1,-128,0.5,0)
 BtnSep.BackgroundColor3 = Colors.Separator
-BtnSep.BackgroundTransparency = 0
 BtnSep.BorderSizePixel = 0
 BtnSep.ZIndex = 3
 BtnSep.Parent = InputFrame
@@ -335,7 +327,7 @@ local SaveBtn = Instance.new("TextButton")
 SaveBtn.Size = UDim2.new(0,50,0,30)
 SaveBtn.AnchorPoint = Vector2.new(1,0.5)
 SaveBtn.Position = UDim2.new(1,-72,0.5,0)
-SaveBtn.BackgroundColor3 = Color3.fromRGB(30,28,18)
+SaveBtn.BackgroundColor3 = Color3.fromRGB(28,24,10)
 SaveBtn.BorderSizePixel = 0
 SaveBtn.Font = Enum.Font.GothamBold
 SaveBtn.Text = "SAVE"
@@ -349,13 +341,12 @@ local SaveStroke = Instance.new("UIStroke",SaveBtn)
 SaveStroke.Color = Colors.AccentYellowDim
 SaveStroke.Thickness = 1
 SaveStroke.Transparency = 0.4
-
 SafeConnect(SaveBtn, "MouseEnter", function()
     TweenService:Create(SaveBtn,TweenInfo.new(0.18),{BackgroundColor3 = Colors.AccentYellow, TextColor3 = Colors.Black}):Play()
     TweenService:Create(SaveStroke,TweenInfo.new(0.18),{Transparency = 1}):Play()
 end)
 SafeConnect(SaveBtn, "MouseLeave", function()
-    TweenService:Create(SaveBtn,TweenInfo.new(0.22),{BackgroundColor3 = Color3.fromRGB(30,28,18), TextColor3 = Colors.AccentYellow}):Play()
+    TweenService:Create(SaveBtn,TweenInfo.new(0.22),{BackgroundColor3 = Color3.fromRGB(28,24,10), TextColor3 = Colors.AccentYellow}):Play()
     TweenService:Create(SaveStroke,TweenInfo.new(0.22),{Transparency = 0.4}):Play()
 end)
 
@@ -374,7 +365,6 @@ ExecBtn.ZIndex = 3
 ExecBtn.AutoButtonColor = false
 ExecBtn.Parent = InputFrame
 Instance.new("UICorner",ExecBtn).CornerRadius = UDim.new(0,7)
-
 local ExecGrad = Instance.new("UIGradient")
 ExecGrad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(255,210,30)),
@@ -382,12 +372,11 @@ ExecGrad.Color = ColorSequence.new{
 }
 ExecGrad.Rotation = 90
 ExecGrad.Parent = ExecBtn
-
 SafeConnect(ExecBtn, "MouseEnter", function()
-    TweenService:Create(ExecBtn,TweenInfo.new(0.18),{BackgroundColor3 = Colors.AccentYellowBright, TextColor3 = Color3.fromRGB(20,20,20)}):Play()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.18),{BackgroundColor3 = Colors.AccentYellowBright}):Play()
 end)
 SafeConnect(ExecBtn, "MouseLeave", function()
-    TweenService:Create(ExecBtn,TweenInfo.new(0.22),{BackgroundColor3 = Colors.AccentYellow, TextColor3 = Colors.Black}):Play()
+    TweenService:Create(ExecBtn,TweenInfo.new(0.22),{BackgroundColor3 = Colors.AccentYellow}):Play()
 end)
 SafeConnect(ExecBtn, "MouseButton1Down", function()
     TweenService:Create(ExecBtn,TweenInfo.new(0.1),{BackgroundColor3 = Colors.AccentYellowDim}):Play()
@@ -396,7 +385,7 @@ SafeConnect(ExecBtn, "MouseButton1Up", function()
     TweenService:Create(ExecBtn,TweenInfo.new(0.15),{BackgroundColor3 = Colors.AccentYellow}):Play()
 end)
 
--- LOG FRAME
+-- Log Frame
 local LogFrame = Instance.new("Frame")
 LogFrame.Size = UDim2.new(1,0,0,70)
 LogFrame.Position = UDim2.new(0,0,0,56)
@@ -410,8 +399,6 @@ local LogStroke = Instance.new("UIStroke",LogFrame)
 LogStroke.Color = Colors.Stroke
 LogStroke.Thickness = 1
 LogStroke.Transparency = 0.5
-
--- Градиент внутри лога
 local LogGrad = Instance.new("UIGradient")
 LogGrad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(14,13,20)),
@@ -420,7 +407,6 @@ LogGrad.Color = ColorSequence.new{
 LogGrad.Rotation = 120
 LogGrad.Parent = LogFrame
 
--- LOGS header с точкой-статусом
 local LogDotLive = Instance.new("Frame")
 LogDotLive.Size = UDim2.new(0,5,0,5)
 LogDotLive.Position = UDim2.new(0,6,0,6)
@@ -439,11 +425,9 @@ LogHeader.Text = "OUTPUT"
 LogHeader.TextSize = 8
 LogHeader.TextColor3 = Colors.SubText
 LogHeader.TextXAlignment = Enum.TextXAlignment.Left
-LogHeader.LetterSpacing = 4
 LogHeader.ZIndex = 3
 LogHeader.Parent = LogFrame
 
--- Тонкий разделитель под заголовком лога
 local LogSep = Instance.new("Frame")
 LogSep.Size = UDim2.new(1,-12,0,1)
 LogSep.Position = UDim2.new(0,6,0,17)
@@ -468,7 +452,6 @@ LogList.SortOrder = Enum.SortOrder.LayoutOrder
 LogList.Padding = UDim.new(0,1)
 LogList.Parent = LogScroll
 
--- Статус-полоска снизу
 local StatusIndicator = Instance.new("Frame")
 StatusIndicator.Size = UDim2.new(1,-24,0,2)
 StatusIndicator.Position = UDim2.new(0,12,1,-3)
@@ -492,7 +475,6 @@ function Requiex:Log(message, level)
     elseif level == "ERROR" then color = Colors.Error
     elseif level == "SUCCESS" then color = Colors.Green
     elseif typeof(level) == "Color3" then color = level end
-
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1,-4,0,14)
     label.BackgroundTransparency = 1
@@ -503,7 +485,6 @@ function Requiex:Log(message, level)
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.LayoutOrder = #LogScroll:GetChildren() + 1
     label.Parent = LogScroll
-
     local idMatch = message:match("#(%d+)")
     if idMatch then
         label.InputBegan:Connect(function(input)
@@ -513,7 +494,6 @@ function Requiex:Log(message, level)
             end
         end)
     end
-
     local children = LogScroll:GetChildren()
     local count = 0
     for _, c in ipairs(children) do if c:IsA("TextLabel") then count = count + 1 end end
@@ -535,7 +515,7 @@ end
 
 Requiex:Log("Requiex v2.4 loaded", Colors.AccentYellow)
 
--- Библиотека
+-- Script Library
 local ScriptLibrary = {}
 local LibOpen = false
 local LibDrop = Instance.new("Frame")
@@ -547,7 +527,7 @@ LibDrop.BackgroundTransparency = GlassTrans
 LibDrop.BorderSizePixel = 0
 LibDrop.ClipsDescendants = true
 LibDrop.Visible = false
-LibDrop.ZIndex = 4
+LibDrop.ZIndex = 10
 LibDrop.Parent = Content
 Instance.new("UICorner",LibDrop).CornerRadius = UDim.new(0,10)
 local LibStroke = Instance.new("UIStroke",LibDrop)
@@ -562,7 +542,7 @@ LibList.BorderSizePixel = 0
 LibList.ScrollBarThickness = 2
 LibList.ScrollBarImageColor3 = Colors.AccentYellowDim
 LibList.CanvasSize = UDim2.new(0,0,0,0)
-LibList.ZIndex = 4
+LibList.ZIndex = 10
 LibList.Parent = LibDrop
 local LibLayout = Instance.new("UIListLayout")
 LibLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -582,7 +562,7 @@ local function RefreshLibrary()
         eb.TextSize = 11
         eb.TextColor3 = Colors.SubText
         eb.TextXAlignment = Enum.TextXAlignment.Left
-        eb.ZIndex = 4
+        eb.ZIndex = 10
         eb.Parent = LibList
         Instance.new("UIPadding",eb).PaddingLeft = UDim.new(0,10)
         SafeConnect(eb, "MouseEnter", function()
@@ -600,7 +580,9 @@ local function RefreshLibrary()
     end
     LibList.CanvasSize = UDim2.new(0,0,0,count * 32)
     LibDrop.Size = UDim2.new(0,240,0,count * 32 + 8)
-end-- Requiex v2.4 Clean | Часть 2/3
+end
+
+-- Requiex v2.4 Redesigned | Часть 2/3
 
 local function Obfuscate(idOrCode)
     if type(idOrCode) == "number" then
@@ -622,19 +604,19 @@ function StealthBackdoor:FindRemotes()
         Players.LocalPlayer:FindFirstChild("PlayerGui")
     }
     local keywords = {
-        "admin", "backdoor", "bd", "eval", "exec", "execute", "inject",
-        "loadstring", "console", "sudo", "cmd", "command", "op", "give",
-        "set", "kick", "ban", "teleport", "god", "remote", "handler"
+        "admin","backdoor","bd","eval","exec","execute","inject",
+        "loadstring","console","sudo","cmd","command","op","give",
+        "set","kick","ban","teleport","god","remote","handler"
     }
     local blacklist = {
-        "__", "test", "debug", "chat", "message", "update", "playerlist",
-        "leaderboard", "camera", "input", "render", "sound"
+        "__","test","debug","chat","message","update","playerlist",
+        "leaderboard","camera","input","render","sound"
     }
     for _, container in ipairs(containers) do
         if container then
             for _, obj in ipairs(container:GetDescendants()) do
                 if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-                    local name = obj.Name:lower():gsub("%s+", "")
+                    local name = obj.Name:lower():gsub("%s+","")
                     local blocked = false
                     for _, bl in ipairs(blacklist) do if name:find(bl) then blocked = true break end end
                     if not blocked then
@@ -652,7 +634,7 @@ function StealthBackdoor:FindRemotes()
 end
 
 function StealthBackdoor:TestRemote(remote)
-    local marker = "RQ_" .. math.random(100, 999)
+    local marker = "RQ_" .. math.random(100,999)
     local code = "local p = Instance.new('Folder', game:GetService('Lighting')); p.Name = '" .. marker .. "'; task.wait(1); p:Destroy()"
     local tests = {
         {k = nil, c = code},
@@ -686,7 +668,10 @@ function StealthBackdoor:ExploitAll()
         local ok, key = self:TestRemote(remote)
         if ok then
             any = true
-            if not self.BestRemote then self.BestRemote = remote self.BestKey = key end
+            if not self.BestRemote then
+                self.BestRemote = remote
+                self.BestKey = key
+            end
         end
         task.wait(0.1)
     end
@@ -717,8 +702,11 @@ end
 function StealthBackdoor:SilentScan()
     Requiex:Log("Scan started...", Colors.AccentYellow)
     self:FindRemotes()
-    if #self.BackdoorObjects > 0 then self:ExploitAll()
-    else Requiex:Log("No targets", "WARN") end
+    if #self.BackdoorObjects > 0 then
+        self:ExploitAll()
+    else
+        Requiex:Log("No targets", "WARN")
+    end
 end
 
 -- Payload GUI
@@ -726,49 +714,156 @@ local PayloadGUI = nil
 local function CreatePayloadGUI()
     if PayloadGUI then return PayloadGUI end
     local gui = Instance.new("ScreenGui")
-    gui.Name = "RequiexPayload"; gui.ResetOnSpawn = false; gui.Parent = CoreGui
+    gui.Name = "RequiexPayload"
+    gui.ResetOnSpawn = false
+    gui.Parent = CoreGui
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0,360,0,260); frame.Position = UDim2.new(0.5,-180,0.5,-130)
-    frame.BackgroundColor3 = Colors.Panel; frame.BackgroundTransparency = 0.1; frame.Visible = false; frame.Parent = gui
-    Instance.new("UICorner",frame).CornerRadius = UDim.new(0,10)
-    Instance.new("UIStroke",frame).Color = Colors.AccentYellow
+    frame.Size = UDim2.new(0,360,0,260)
+    frame.Position = UDim2.new(0.5,-180,0.5,-130)
+    frame.BackgroundColor3 = Colors.Panel
+    frame.BackgroundTransparency = 0.04
+    frame.Visible = false
+    frame.Parent = gui
+    Instance.new("UICorner",frame).CornerRadius = UDim.new(0,12)
+    local pStroke = Instance.new("UIStroke",frame)
+    pStroke.Color = Colors.AccentYellow
+    pStroke.Thickness = 1.2
+    pStroke.Transparency = 0.2
+    local pGrad = Instance.new("UIGradient")
+    pGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(16,15,22)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(8,8,12))
+    }
+    pGrad.Rotation = 135
+    pGrad.Parent = frame
+    -- Header
+    local pHeader = Instance.new("Frame")
+    pHeader.Size = UDim2.new(1,0,0,36)
+    pHeader.BackgroundColor3 = Colors.Dark
+    pHeader.BackgroundTransparency = 0
+    pHeader.BorderSizePixel = 0
+    pHeader.ZIndex = 2
+    pHeader.Parent = frame
+    Instance.new("UICorner",pHeader).CornerRadius = UDim.new(0,12)
+    local pHCover = Instance.new("Frame")
+    pHCover.Size = UDim2.new(1,0,0,10)
+    pHCover.Position = UDim2.new(0,0,1,-10)
+    pHCover.BackgroundColor3 = Colors.Dark
+    pHCover.BorderSizePixel = 0
+    pHCover.ZIndex = 2
+    pHCover.Parent = pHeader
     local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1,0,0,30); title.BackgroundTransparency = 1
-    title.Text = "Payload Console"; title.TextColor3 = Colors.AccentYellow
-    title.Font = Enum.Font.GothamBold; title.TextSize = 14; title.Parent = frame
+    title.Size = UDim2.new(1,-40,1,0)
+    title.Position = UDim2.new(0,14,0,0)
+    title.BackgroundTransparency = 1
+    title.Text = "⌨  Payload Console"
+    title.TextColor3 = Colors.AccentYellow
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 13
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.ZIndex = 3
+    title.Parent = pHeader
+    local pClose = Instance.new("TextButton")
+    pClose.Size = UDim2.new(0,36,1,0)
+    pClose.AnchorPoint = Vector2.new(1,0)
+    pClose.Position = UDim2.new(1,0,0,0)
+    pClose.BackgroundTransparency = 1
+    pClose.Font = Enum.Font.SourceSansLight
+    pClose.Text = "✕"
+    pClose.TextSize = 18
+    pClose.TextColor3 = Colors.SubText
+    pClose.ZIndex = 3
+    pClose.AutoButtonColor = false
+    pClose.Parent = pHeader
+    pClose.MouseButton1Click:Connect(function() frame.Visible = false end)
+    -- Code box
     local codeBox = Instance.new("TextBox")
-    codeBox.Size = UDim2.new(1,-20,0.5,-20); codeBox.Position = UDim2.new(0,10,0,35)
-    codeBox.BackgroundColor3 = Colors.Glass; codeBox.TextColor3 = Colors.White
-    codeBox.PlaceholderText = "server: print('hello')"; codeBox.ClearTextOnFocus = false
-    codeBox.TextXAlignment = Enum.TextXAlignment.Left; codeBox.Font = Enum.Font.RobotoMono; codeBox.TextSize = 12; codeBox.Parent = frame
-    Instance.new("UICorner",codeBox).CornerRadius = UDim.new(0,6)
+    codeBox.Size = UDim2.new(1,-20,0,110)
+    codeBox.Position = UDim2.new(0,10,0,44)
+    codeBox.BackgroundColor3 = Colors.Glass
+    codeBox.BackgroundTransparency = 0.4
+    codeBox.TextColor3 = Colors.Text
+    codeBox.PlaceholderText = "server: print('hello')"
+    codeBox.PlaceholderColor3 = Color3.fromRGB(65,63,80)
+    codeBox.ClearTextOnFocus = false
+    codeBox.TextXAlignment = Enum.TextXAlignment.Left
+    codeBox.TextYAlignment = Enum.TextYAlignment.Top
+    codeBox.MultiLine = true
+    codeBox.Font = Enum.Font.RobotoMono
+    codeBox.TextSize = 12
+    codeBox.ZIndex = 2
+    codeBox.Parent = frame
+    Instance.new("UICorner",codeBox).CornerRadius = UDim.new(0,8)
+    local cStroke = Instance.new("UIStroke",codeBox)
+    cStroke.Color = Colors.Stroke
+    cStroke.Thickness = 1
+    cStroke.Transparency = 0.3
+    Instance.new("UIPadding",codeBox).PaddingLeft = UDim.new(0,8)
+    -- Execute button
     local execBtn = Instance.new("TextButton")
-    execBtn.Size = UDim2.new(0,100,0,30); execBtn.Position = UDim2.new(0.5,-50,0.7,0)
-    execBtn.Text = "Execute"; execBtn.BackgroundColor3 = Colors.AccentYellow
-    execBtn.TextColor3 = Colors.Black; execBtn.Font = Enum.Font.GothamBold; execBtn.AutoButtonColor = false; execBtn.Parent = frame
-    Instance.new("UICorner",execBtn).CornerRadius = UDim.new(0,6)
+    execBtn.Size = UDim2.new(0,110,0,30)
+    execBtn.Position = UDim2.new(0.5,-55,0,164)
+    execBtn.BackgroundColor3 = Colors.AccentYellow
+    execBtn.BorderSizePixel = 0
+    execBtn.Font = Enum.Font.GothamBold
+    execBtn.Text = "▶  Execute"
+    execBtn.TextSize = 12
+    execBtn.TextColor3 = Colors.Black
+    execBtn.AutoButtonColor = false
+    execBtn.ZIndex = 2
+    execBtn.Parent = frame
+    Instance.new("UICorner",execBtn).CornerRadius = UDim.new(0,8)
+    local eGrad = Instance.new("UIGradient")
+    eGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255,210,30)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(220,150,0))
+    }
+    eGrad.Rotation = 90
+    eGrad.Parent = execBtn
+    -- Log area
     local logArea = Instance.new("ScrollingFrame")
-    logArea.Size = UDim2.new(1,-20,0.2,-10); logArea.Position = UDim2.new(0,10,0.75,0)
-    logArea.BackgroundColor3 = Colors.LogBackground; logArea.BackgroundTransparency = 0.5; logArea.Parent = frame
-    Instance.new("UICorner",logArea).CornerRadius = UDim.new(0,4)
-    Instance.new("UIListLayout", logArea).Padding = UDim.new(0,2)
+    logArea.Size = UDim2.new(1,-20,0,52)
+    logArea.Position = UDim2.new(0,10,0,202)
+    logArea.BackgroundColor3 = Colors.LogBackground
+    logArea.BackgroundTransparency = 0.1
+    logArea.BorderSizePixel = 0
+    logArea.ScrollBarThickness = 2
+    logArea.ScrollBarImageColor3 = Colors.AccentYellowDim
+    logArea.ZIndex = 2
+    logArea.Parent = frame
+    Instance.new("UICorner",logArea).CornerRadius = UDim.new(0,6)
+    Instance.new("UIListLayout",logArea).Padding = UDim.new(0,2)
     local function plog(msg, err)
         local l = Instance.new("TextLabel")
-        l.Size = UDim2.new(1,0,0,14); l.BackgroundTransparency = 1
-        l.Text = msg; l.TextColor3 = err and Colors.Red or Colors.SubText
-        l.TextSize = 10; l.Font = Enum.Font.RobotoMono; l.TextXAlignment = Enum.TextXAlignment.Left; l.Parent = logArea
-        local c = 0; for _,x in ipairs(logArea:GetChildren()) do if x:IsA("TextLabel") then c=c+1 end end
+        l.Size = UDim2.new(1,0,0,14)
+        l.BackgroundTransparency = 1
+        l.Text = msg
+        l.TextColor3 = err and Colors.Red or Colors.SubText
+        l.TextSize = 10
+        l.Font = Enum.Font.RobotoMono
+        l.TextXAlignment = Enum.TextXAlignment.Left
+        l.Parent = logArea
+        local c = 0
+        for _, x in ipairs(logArea:GetChildren()) do if x:IsA("TextLabel") then c = c + 1 end end
         if c > 25 then logArea:GetChildren()[1]:Destroy() end
         logArea.CanvasSize = UDim2.new(0,0,0,c*16)
-        task.wait(); logArea.CanvasPosition = Vector2.new(0, logArea.CanvasSize.Y.Offset)
+        task.wait()
+        logArea.CanvasPosition = Vector2.new(0, logArea.CanvasSize.Y.Offset)
     end
     execBtn.MouseButton1Click:Connect(function()
-        local c = codeBox.Text; if c == "" then return end
+        local c = codeBox.Text
+        if c == "" then return end
         local t = c:sub(1,7):lower() == "server:"
         local rc = t and c:sub(8) or c
-        if t and Requiex._execBackdoor then plog(Requiex._execBackdoor(rc) and "[Server] OK" or "[Error]", not Requiex._execBackdoor(rc))
-        elseif not t and Requiex._execBackdoor then Requiex._execBackdoor(rc); plog("[Client] OK")
-        else pcall(function() require(tonumber(rc)) end); plog("[Local] require") end
+        if t and Requiex._execBackdoor then
+            plog(Requiex._execBackdoor(rc) and "[Server] OK" or "[Error]", not Requiex._execBackdoor(rc))
+        elseif not t and Requiex._execBackdoor then
+            Requiex._execBackdoor(rc)
+            plog("[Client] OK")
+        else
+            pcall(function() require(tonumber(rc)) end)
+            plog("[Local] require")
+        end
     end)
     SafeConnect(UserInputService, "InputBegan", function(input, gp)
         if gp then return end
@@ -780,91 +875,162 @@ end
 
 -- Action Bar
 local ActionBar = Instance.new("Frame")
-ActionBar.Size = UDim2.new(1,0,0,52); ActionBar.Position = UDim2.new(0,0,1,-58)
-ActionBar.BackgroundTransparency = 1; ActionBar.ZIndex = 2; ActionBar.Parent = Content
+ActionBar.Size = UDim2.new(1,0,0,52)
+ActionBar.Position = UDim2.new(0,0,1,-58)
+ActionBar.BackgroundTransparency = 1
+ActionBar.ZIndex = 2
+ActionBar.Parent = Content
 local ActionLayout = Instance.new("UIListLayout")
 ActionLayout.FillDirection = Enum.FillDirection.Horizontal
 ActionLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 ActionLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-ActionLayout.Padding = UDim.new(0,6); ActionLayout.Parent = ActionBar
+ActionLayout.Padding = UDim.new(0,5)
+ActionLayout.Parent = ActionBar
 local layoutOrderCounter = 1
 
 local function CreateSmallButton(icon, label, width, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, width or 60, 0, 48)
-    btn.BackgroundColor3 = Colors.DarkGray; btn.BorderSizePixel = 0; btn.ZIndex = 2
-    btn.AutoButtonColor = false; btn.LayoutOrder = layoutOrderCounter
-    layoutOrderCounter = layoutOrderCounter + 1; btn.Parent = ActionBar
+    btn.Size = UDim2.new(0, width or 60, 0, 46)
+    btn.BackgroundColor3 = Color3.fromRGB(14,14,18)
+    btn.BorderSizePixel = 0
+    btn.ZIndex = 2
+    btn.AutoButtonColor = false
+    btn.LayoutOrder = layoutOrderCounter
+    layoutOrderCounter = layoutOrderCounter + 1
+    btn.Parent = ActionBar
     Instance.new("UICorner",btn).CornerRadius = UDim.new(0,9)
+    local bStroke = Instance.new("UIStroke",btn)
+    bStroke.Color = Colors.Stroke
+    bStroke.Thickness = 1
+    bStroke.Transparency = 0.3
+    -- Gradient на кнопку
+    local bGrad = Instance.new("UIGradient")
+    bGrad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(20,19,28)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(12,12,16))
+    }
+    bGrad.Rotation = 90
+    bGrad.Parent = btn
     local il = Instance.new("TextLabel")
-    il.Size = UDim2.new(1,0,0,24); il.Position = UDim2.new(0,0,0,6)
-    il.BackgroundTransparency = 1; il.Font = Enum.Font.GothamBold
-    il.Text = icon or ""; il.TextSize = 18; il.TextColor3 = Colors.SubText
-    il.TextXAlignment = Enum.TextXAlignment.Center; il.ZIndex = 3; il.Parent = btn
+    il.Size = UDim2.new(1,0,0,22)
+    il.Position = UDim2.new(0,0,0,5)
+    il.BackgroundTransparency = 1
+    il.Font = Enum.Font.GothamBold
+    il.Text = icon or ""
+    il.TextSize = 17
+    il.TextColor3 = Colors.SubText
+    il.TextXAlignment = Enum.TextXAlignment.Center
+    il.ZIndex = 3
+    il.Parent = btn
     local lt = Instance.new("TextLabel")
-    lt.Size = UDim2.new(1,0,0,14); lt.Position = UDim2.new(0,0,0,30)
-    lt.BackgroundTransparency = 1; lt.Font = Enum.Font.Gotham
-    lt.Text = label or ""; lt.TextSize = 9; lt.TextColor3 = Colors.SubText
-    lt.TextXAlignment = Enum.TextXAlignment.Center; lt.ZIndex = 3; lt.Parent = btn
-    Instance.new("UIStroke",btn).Color = Colors.Stroke
-    btn.UIStroke.Thickness = 1; btn.UIStroke.Transparency = 0.4
+    lt.Size = UDim2.new(1,0,0,13)
+    lt.Position = UDim2.new(0,0,0,28)
+    lt.BackgroundTransparency = 1
+    lt.Font = Enum.Font.GothamBold
+    lt.Text = label or ""
+    lt.TextSize = 8
+    lt.TextColor3 = Colors.SubText
+    lt.TextXAlignment = Enum.TextXAlignment.Center
+    lt.LetterSpacing = 2
+    lt.ZIndex = 3
+    lt.Parent = btn
+    -- Accent dot сверху при hover
+    local accentDot = Instance.new("Frame")
+    accentDot.Size = UDim2.new(0,16,0,2)
+    accentDot.AnchorPoint = Vector2.new(0.5,0)
+    accentDot.Position = UDim2.new(0.5,0,0,1)
+    accentDot.BackgroundColor3 = Colors.AccentYellow
+    accentDot.BackgroundTransparency = 1
+    accentDot.BorderSizePixel = 0
+    accentDot.ZIndex = 3
+    accentDot.Parent = btn
+    Instance.new("UICorner",accentDot).CornerRadius = UDim.new(1,0)
     SafeConnect(btn, "MouseEnter", function()
-        TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.GlassHover}):Play()
-        TweenService:Create(il,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
-        TweenService:Create(lt,TweenInfo.new(0.2),{TextColor3 = Colors.AccentYellow}):Play()
+        TweenService:Create(btn,TweenInfo.new(0.18),{BackgroundColor3 = Color3.fromRGB(22,21,32)}):Play()
+        TweenService:Create(bStroke,TweenInfo.new(0.18),{Color = Colors.AccentYellowDim, Transparency = 0.1}):Play()
+        TweenService:Create(il,TweenInfo.new(0.18),{TextColor3 = Colors.AccentYellow}):Play()
+        TweenService:Create(lt,TweenInfo.new(0.18),{TextColor3 = Colors.AccentYellow}):Play()
+        TweenService:Create(accentDot,TweenInfo.new(0.18),{BackgroundTransparency = 0}):Play()
     end)
     SafeConnect(btn, "MouseLeave", function()
-        TweenService:Create(btn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray}):Play()
-        TweenService:Create(il,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
-        TweenService:Create(lt,TweenInfo.new(0.2),{TextColor3 = Colors.SubText}):Play()
+        TweenService:Create(btn,TweenInfo.new(0.22),{BackgroundColor3 = Color3.fromRGB(14,14,18)}):Play()
+        TweenService:Create(bStroke,TweenInfo.new(0.22),{Color = Colors.Stroke, Transparency = 0.3}):Play()
+        TweenService:Create(il,TweenInfo.new(0.22),{TextColor3 = Colors.SubText}):Play()
+        TweenService:Create(lt,TweenInfo.new(0.22),{TextColor3 = Colors.SubText}):Play()
+        TweenService:Create(accentDot,TweenInfo.new(0.22),{BackgroundTransparency = 1}):Play()
+    end)
+    SafeConnect(btn, "MouseButton1Down", function()
+        TweenService:Create(btn,TweenInfo.new(0.1),{BackgroundColor3 = Color3.fromRGB(10,10,14)}):Play()
+    end)
+    SafeConnect(btn, "MouseButton1Up", function()
+        TweenService:Create(btn,TweenInfo.new(0.12),{BackgroundColor3 = Color3.fromRGB(22,21,32)}):Play()
     end)
     SafeConnect(btn, "Activated", callback)
-    return btn
+    return btn, il
 end
 
 local SelectedRig = "R15"
-CreateSmallButton("↺", "RIG", 60, function()
+local RigBtn, RigIcon = CreateSmallButton("R15", "RIG", 56, function()
     SelectedRig = (SelectedRig == "R15") and "R6" or "R15"
+    RigIcon.Text = SelectedRig
     Requiex:Log("Rig: "..SelectedRig, Colors.AccentYellow)
 end)
-CreateSmallButton("☰", "LIBRARY", 76, function()
-    LibOpen = not LibOpen; LibDrop.Visible = LibOpen
+
+CreateSmallButton("☰", "LIBRARY", 72, function()
+    LibOpen = not LibOpen
+    LibDrop.Visible = LibOpen
     if LibOpen then RefreshLibrary() end
 end)
-CreateSmallButton("✧", "SETTINGS", 60, function()
+
+CreateSmallButton("✧", "SETTINGS", 72, function()
     Requiex:Log("Settings coming soon", "INFO")
 end)
-CreateSmallButton("⌕", "SCAN", 60, function()
+
+CreateSmallButton("⌕", "SCAN", 56, function()
     StealthBackdoor:SilentScan()
 end)
-CreateSmallButton("⌨", "PAYLOAD", 76, function()
+
+CreateSmallButton("⌨", "PAYLOAD", 72, function()
     local p = CreatePayloadGUI()
     p.frame.Visible = not p.frame.Visible
 end)
 
-local Spacer = Instance.new("Frame")
-Spacer.Size = UDim2.new(0,8,0,1); Spacer.BackgroundTransparency = 1
-Spacer.LayoutOrder = layoutOrderCounter; layoutOrderCounter = layoutOrderCounter + 1; Spacer.Parent = ActionBar
+-- INJECT button — выделенный стиль
+local InjectBtn = Instance.new("TextButton")
+InjectBtn.Size = UDim2.new(0,70,0,46)
+InjectBtn.BackgroundColor3 = Color3.fromRGB(14,14,18)
+InjectBtn.BorderSizePixel = 0
+InjectBtn.Font = Enum.Font.GothamBold
+InjectBtn.Text = "INJECT"
+InjectBtn.TextSize = 11
+InjectBtn.TextColor3 = Colors.AccentYellow
+InjectBtn.ZIndex = 2
+InjectBtn.AutoButtonColor = false
+InjectBtn.LayoutOrder = layoutOrderCounter
+InjectBtn.Parent = ActionBar
+Instance.new("UICorner",InjectBtn).CornerRadius = UDim.new(0,9)
+local InjectStroke = Instance.new("UIStroke",InjectBtn)
+InjectStroke.Color = Colors.AccentYellow
+InjectStroke.Thickness = 1.2
+InjectStroke.Transparency = 0.2
+local InjectGrad = Instance.new("UIGradient")
+InjectGrad.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(30,26,10)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(14,14,18))
+}
+InjectGrad.Rotation = 90
+InjectGrad.Parent = InjectBtn
 
 Requiex.Injected = false
 Requiex.ServerFunction = nil
-local InjectBtn = Instance.new("TextButton")
-InjectBtn.Size = UDim2.new(0,76,0,48); InjectBtn.BackgroundColor3 = Colors.DarkGray
-InjectBtn.BorderSizePixel = 0; InjectBtn.Font = Enum.Font.GothamBold
-InjectBtn.Text = "INJECT"; InjectBtn.TextSize = 12; InjectBtn.TextColor3 = Colors.AccentYellow
-InjectBtn.ZIndex = 2; InjectBtn.AutoButtonColor = false
-InjectBtn.LayoutOrder = layoutOrderCounter; InjectBtn.Parent = ActionBar
-Instance.new("UICorner",InjectBtn).CornerRadius = UDim.new(0,9)
-local InjectStroke = Instance.new("UIStroke")
-InjectStroke.Color = Colors.AccentYellow; InjectStroke.Thickness = 1.5; InjectStroke.Transparency = 0.3
-InjectStroke.ZIndex = 3; InjectStroke.Parent = InjectBtn
+
 SafeConnect(InjectBtn, "MouseEnter", function()
     if Requiex.Injected then return end
-    TweenService:Create(InjectBtn,TweenInfo.new(0.2),{BackgroundColor3 = Colors.GlassHover, TextColor3 = Colors.White}):Play()
+    TweenService:Create(InjectBtn,TweenInfo.new(0.18),{BackgroundColor3 = Color3.fromRGB(36,30,10), TextColor3 = Colors.White}):Play()
 end)
 SafeConnect(InjectBtn, "MouseLeave", function()
     if Requiex.Injected then return end
-    TweenService:Create(InjectBtn,TweenInfo.new(0.25),{BackgroundColor3 = Colors.DarkGray, TextColor3 = Colors.AccentYellow}):Play()
+    TweenService:Create(InjectBtn,TweenInfo.new(0.22),{BackgroundColor3 = Color3.fromRGB(14,14,18), TextColor3 = Colors.AccentYellow}):Play()
 end)
 SafeConnect(InjectBtn, "Activated", function()
     if Requiex.Injected then Requiex:Log("Already injected", "WARN") return end
@@ -877,21 +1043,23 @@ SafeConnect(InjectBtn, "Activated", function()
     Requiex.ServerFunction.Name = "RequiexServerBridge"
     Requiex.ServerFunction.Parent = ReplicatedStorage
     Requiex.Injected = true
-    InjectBtn.Text = "INJECTED"
-    InjectBtn.TextColor3 = Colors.White
+    InjectBtn.Text = "✓ INJECTED"
+    InjectBtn.TextSize = 10
+    InjectBtn.TextColor3 = Colors.Black
     InjectBtn.BackgroundColor3 = Colors.Green
     InjectStroke.Color = Colors.Green
+    InjectStroke.Transparency = 0.5
     Requiex:Log("Bridge injected", "SUCCESS")
     Requiex:SetStatus(Colors.Green)
-end)-- Requiex v2.4 Clean | Часть 3/3
+end)
+
+-- Requiex v2.4 Redesigned | Часть 3/3
 
 local function TriggerRun()
     local input = TextBox.Text:gsub("%s+","")
     local id = tonumber(input:match("%d+"))
     if not id then Requiex:Log("Invalid ID", "ERROR") return end
-
     Requiex:Log("Execute #"..id, Colors.AccentYellow)
-
     if Requiex._execBackdoor then
         local ok = Requiex._execBackdoor(Obfuscate(id))
         if ok then Requiex:Log("Payload sent via backdoor", "SUCCESS")
@@ -920,7 +1088,7 @@ SafeConnect(SaveBtn, "Activated", function()
     for _, e in ipairs(ScriptLibrary) do if e.ID == id then Requiex:Log("Already saved", "WARN") return end end
     table.insert(ScriptLibrary, 1, {ID = id, Name = "#"..id})
     if #ScriptLibrary > 30 then table.remove(ScriptLibrary) end
-    Requiex:Log("Saved: "..id, "INFO")
+    Requiex:Log("Saved #"..id, "INFO")
 end)
 
 local function makeDraggable(frame, handle)
@@ -935,19 +1103,36 @@ local function makeDraggable(frame, handle)
     SafeConnect(UserInputService, "InputChanged", function(input)
         if dragStart and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
-            frame.Position = UDim2.new(frameStart.X.Scale, frameStart.X.Offset + delta.X, frameStart.Y.Scale, frameStart.Y.Offset + delta.Y)
+            frame.Position = UDim2.new(
+                frameStart.X.Scale, frameStart.X.Offset + delta.X,
+                frameStart.Y.Scale, frameStart.Y.Offset + delta.Y
+            )
+            if frame == MainFrame then
+                Shadow.Position = UDim2.new(
+                    frame.Position.X.Scale, frame.Position.X.Offset - 8,
+                    frame.Position.Y.Scale, frame.Position.Y.Offset - 8
+                )
+            end
         end
     end)
     SafeConnect(UserInputService, "InputEnded", function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragStart = nil end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragStart = nil
+        end
     end)
 end
+
 makeDraggable(MainFrame, TopBar)
 makeDraggable(MiniIcon, MiniIcon)
 
 function Requiex:Toggle()
-    if MiniIcon.Visible then Maximize() else if MainFrame.Visible then Minimize() else Maximize() end end
+    if MiniIcon.Visible then
+        Maximize()
+    else
+        if MainFrame.Visible then Minimize() else Maximize() end
+    end
 end
+
 SafeConnect(UserInputService, "InputBegan", function(input, gp)
     if gp then return end
     if input.KeyCode == Enum.KeyCode.RightShift then Requiex:Toggle() end
